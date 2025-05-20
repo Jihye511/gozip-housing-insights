@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.local.repository.HouseInfoRepository">
+
+	<select id="selectHouseInfoByID" resultType="HouseInfoDto">
+		SELECT * 
+		FROM houseinfos 
+		WHERE apt_seq = #{id}
+	</select>
+	
+	<select id="selectHouseInfoByName" resultType="HouseInfoDto">
+		SELECT * 
+		FROM houseinfos 
+		WHERE apt_nm = #{name}
+	</select>
+
+    <insert id="insertHouseInfo" parameterType="HouseInfoDto">
+        INSERT INTO houseinfos (
+            apt_seq, sgg_cd, umd_cd, umd_nm, jibun,
+            road_nm_sgg_cd, road_nm, road_nm_bonbun, road_nm_bubun,
+            apt_nm, build_year, latitude, longitude
+        )
+        VALUES (
+            #{apt_seq}, #{sgg_cd}, #{umd_cd}, #{umd_nm}, #{jibun},
+            #{road_nm_sgg_cd}, #{road_nm}, #{road_nm_bonbun}, #{road_nm_bubun},
+            #{apt_nm}, #{build_year}, #{latitude}, #{longitude}
+        )
+    </insert>
+
+    <delete id="deleteHouseInfo" parameterType="string">
+        DELETE FROM houseinfos
+        WHERE apt_seq = #{id}
+    </delete>
+
+    <select id="selectHouseInfobyDongCode" parameterType="string" resultType="HouseInfoDto">
+        SELECT *
+        FROM houseinfos
+        WHERE sgg_cd = SUBSTRING(#{dongCode}, 1, 5)
+          AND umd_cd = SUBSTRING(#{dongCode}, 6, 5)
+    </select>
+
+    <select id="selectHouseInfoByAptName" parameterType="string" resultType="HouseInfoDto">
+        SELECT *
+        FROM houseinfos
+        WHERE apt_nm LIKE CONCAT('%', #{aptName}, '%')
+    </select>
+
+</mapper>

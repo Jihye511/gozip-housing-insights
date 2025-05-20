@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.ssafy.local.repository.UserRepository">
+
+    <!-- 회원 ID + PW로 조회 -->
+    <select id="selectUserByIDPW" parameterType="map" resultType="com.ssafy.local.dto.UserDto">
+        SELECT user_id, email, pw, name, phone, c_date
+        FROM user
+        WHERE user_id = #{id} AND pw = #{pw}
+    </select>
+
+    <!-- 회원 ID + Email로 조회 -->
+    <select id="selectUserByIDEmail" parameterType="map" resultType="com.ssafy.local.dto.UserDto">
+        SELECT user_id, email, pw, name, phone, c_date
+        FROM user
+        WHERE user_id = #{id} AND email = #{email}
+    </select>
+
+    <!-- 회원 전체 조회 -->
+    <select id="selectUserAll" resultType="com.ssafy.local.dto.UserDto">
+        SELECT user_id, email, pw, name, phone, c_date
+        FROM user
+    </select>
+
+    <!-- 회원 등록 -->
+    <insert id="insertUser" parameterType="com.ssafy.local.dto.UserDto">
+        INSERT INTO user(user_id, email, pw, name, phone)
+        VALUES(#{user_id}, #{email}, #{pw}, #{name}, #{phone})
+    </insert>
+
+    <!-- ID로 회원 조회 -->
+    <select id="selectUserByID" parameterType="string" resultType="com.ssafy.local.dto.UserDto">
+        SELECT user_id, email, pw, name, phone, c_date
+        FROM user
+        WHERE user_id = #{id}
+    </select>
+
+    <!-- 회원 삭제 -->
+    <delete id="deleteUser" parameterType="string">
+        DELETE FROM user
+        WHERE user_id = #{id}
+    </delete>
+
+    <!-- 회원 수정 -->
+    <update id="updateUser" parameterType="com.ssafy.local.dto.UserDto">
+        UPDATE user
+        SET email = #{email}, pw = #{pw}, name = #{name}, phone = #{phone}
+        WHERE user_id = #{user_id}
+    </update>
+
+    <!-- 이메일로 회원 조회 -->
+    <select id="selectUserByEmail" parameterType="string" resultType="com.ssafy.local.dto.UserDto">
+        SELECT user_id, pw, email, name, phone, c_date
+        FROM user
+        WHERE email = #{email}
+    </select>
+
+</mapper>

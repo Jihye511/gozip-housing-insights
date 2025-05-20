@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.local.repository.HouseDealRepository">
+
+    <insert id="insertHouseDeal" parameterType="com.ssafy.local.dto.HouseDealDto">
+        INSERT INTO housedeals (
+            apt_seq, apt_dong, floor, deal_year, deal_month,
+            deal_day, exclu_use_ar, deal_amount
+        )
+        VALUES (
+            #{apt_seq}, #{apt_dong}, #{floor}, #{deal_year}, #{deal_month},
+            #{deal_day}, #{exclu_use_ar}, #{deal_amount}
+        )
+    </insert>
+
+    <update id="updateHouseDeal" parameterType="com.ssafy.local.dto.HouseDealDto">
+        UPDATE housedeals
+        SET
+            apt_dong = #{apt_dong},
+            floor = #{floor},
+            deal_year = #{deal_year},
+            deal_month = #{deal_month},
+            deal_day = #{deal_day},
+            exclu_use_ar = #{exclu_use_ar},
+            deal_amount = #{deal_amount}
+        WHERE no = #{no}
+    </update>
+
+    <delete id="deleteHouseDeal" parameterType="string">
+        DELETE FROM housedeals
+        WHERE no = #{id}
+    </delete>
+
+    <select id="selectHouseDealbyAptSeq" parameterType="string" resultType="com.ssafy.local.dto.HouseDealDto">
+        SELECT *
+        FROM housedeals
+        WHERE apt_seq = #{aptseq}
+    </select>
+
+</mapper>
