@@ -1,7 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-100 flex">
+  <div class="h-screen bg-gray-100 flex">
+
     <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r p-4 space-y-4">
+    <aside class="w-64 bg-white border-r p-4 flex flex-col">
       <router-link to="/" class="flex items-center space-x-2 hover:opacity-80">
         <img src="@/assets/gozip_logo.png" alt="로고" class="h-6 w-auto" />
         <h2 class="text-xl font-bold text-green-600">검색</h2>
@@ -43,35 +44,34 @@
           </button>
         </div>
       </div>
-      <div>
-        <h3 class="font-bold text-gray-700 mt-4 mb-2">검색 결과</h3>
-        <ul class="space-y-2">
-          <li
-            v-for="apt in aptList"
-            :key="apt.apt_seq"
-            class="border p-2 rounded hover:bg-gray-100 cursor-pointer"
-            @click="moveToApt(apt)"
-          >
-            <p class="font-semibold">{{ apt.apt_nm }}</p>
-            <p class="text-xs text-gray-500">{{ apt.road_nm }} {{ apt.road_nm_bonbun }}</p>
-            <p class="text-green-600 text-sm">
-              <span v-if="apt.dealList && apt.dealList.length">
-                {{ formatPrice(apt.dealList[0].deal_amount) }}
-              </span>
-              <span v-else>정보 없음</span>
-            </p>
-          </li>
-        </ul>
-      </div>
-    </aside>
+
+        <div class="overflow-y-auto mt-4" style="max-height: calc(100vh - 300px);">
+          <h3 class="font-bold text-gray-700 mb-2">검색 결과</h3>
+          <ul class="space-y-2">
+            <li
+              v-for="apt in aptList"
+              :key="apt.apt_seq"
+              class="border p-2 rounded hover:bg-gray-100 cursor-pointer"
+              @click="moveToApt(apt)"
+            >
+              <p class="font-semibold">{{ apt.apt_nm }}</p>
+              <p class="text-xs text-gray-500">{{ apt.road_nm }} {{ apt.road_nm_bonbun }}</p>
+              <p class="text-green-600 text-sm">
+                <span v-if="apt.dealList && apt.dealList.length">
+                  {{ formatPrice(apt.dealList[0].deal_amount) }}
+                </span>
+                <span v-else>정보 없음</span>
+              </p>
+            </li>
+          </ul>
+        </div>
+      </aside>
 
     <!-- Info Panel -->
-    <div class="w-[360px] bg-white p-4 border-r" v-if="selectedApt">
-      <h2 class="text-xl font-bold mb-2">{{ selectedApt.apt_nm }}</h2>
-      <p class="text-gray-600 text-sm mb-4">
-        {{ selectedApt.road_nm }} {{ selectedApt.road_nm_bonbun }}
-      </p>
-
+    <div class="w-[360px] bg-white p-4 border-r" v-if="aptDetailInfo">
+      <h2 class="text-xl font-bold mb-2">{{ aptDetailInfo.aptName }}</h2>
+      <p class="text-gray-600 text-sm mb-4">{{ aptDetailInfo.address }}</p>
+        {{ selectedApt.road_nm }} {{ selectedApt.road_nm_bonbun }}  
       <div class="space-y-2">
         <div>
           <h4 class="font-semibold text-sm text-gray-700">가격 및 정보</h4>
@@ -81,6 +81,29 @@
             </span>
             {{ selectedApt.area || '84m²' }} • 아파트
           </p>
+        </div>
+        <div v-if="areaList.length">
+          <label class="text-sm font-semibold">평수 선택</label>
+          <select v-model="selectedArea" @change="fetchYearlyPrices" class="w-full p-2 border rounded mt-1">
+            <option v-for="item in areaList" :key="item.area" :value="item.area">
+              {{ item.area }}㎡
+            </option>
+          </select>
+        </div>
+        <div v-if="selectedAvgPrice">
+          <p class="text-sm mt-2 text-gray-700">
+            선택한 평수의 평균 매매가:
+            <span class="font-semibold text-green-600">{{ formatPrice(selectedAvgPrice.toString()) }}</span>
+          </p>
+        </div>
+
+        <div v-if="yearlyPrices.length">
+          <h4 class="font-semibold text-sm text-gray-700 mt-3">년도별 평균 매매가</h4>
+          <ul class="text-sm text-gray-700 space-y-1">
+            <li v-for="(item, idx) in yearlyPrices" :key="idx">
+              {{ item.year }}년 - {{ formatPrice(item.avgPrice.toString()) }}
+            </li>
+          </ul>
         </div>
 
         <div>
@@ -132,6 +155,16 @@ export default {
       // ✅ 새로 추가
       selectedApt: null,
       reviews: [],
+      aptDetailInfo: null,
+      areaList: [],        //평수 리스트
+      selectedArea: '',    //선택된 평수
+      yearlyPrices: [],    //연도별 가격
+    }
+  },
+  computed: {
+    selectedAvgPrice() {
+      const match = this.areaList.find((item) => item.area === this.selectedArea)
+      return match ? match.avgPrice : null
     }
   },
 
@@ -183,6 +216,19 @@ export default {
         this.markers.push(marker)
       })
     },
+    async fetchYearlyPrices() {
+      if (!this.selectedApt || !this.selectedArea) return
+      try {
+        const res = await axios.get(`/apt/${this.selectedApt.apt_seq}/price-by-year`, {
+          params: { area: this.selectedArea }
+        })
+        this.yearlyPrices = res.data
+      } catch (err) {
+        console.error('연도별 매매가 조회 실패:', err)
+        this.yearlyPrices = []
+      }
+    },
+
 
     async moveToApt(apt) {
       if (!apt.latitude || !apt.longitude) return
@@ -194,6 +240,15 @@ export default {
 
       // ✅ 아파트 및 리뷰 설정
       this.selectedApt = apt
+      
+      //아파트 상세정보 불러오기
+      try {
+        const res = await axios.get(`/apt/${apt.apt_seq}/info`)
+        this.aptDetailInfo = res.data
+      } catch (err) {
+        console.error('아파트 정보 조회 실패:', err)
+        this.aptDetailInfo = null
+      }
 
       try {
         const res = await axios.get(`/reviews/${apt.apt_seq}`)
@@ -202,6 +257,19 @@ export default {
       } catch (error) {
         console.error('리뷰 불러오기 실패:', error)
         this.reviews = []
+      }
+
+      // 평수 리스트
+      try {
+        const res = await axios.get(`/apt/${apt.apt_seq}/avg-prices`)
+        this.areaList = res.data
+        if (res.data.length > 0) {
+          this.selectedArea = res.data[0].area
+          await this.fetchYearlyPrices()
+        }
+      } catch (err) {
+        console.error('평수 목록 불러오기 실패:', err)
+        this.areaList = []
       }
     },
 
