@@ -61,4 +61,9 @@ public class HouseInfoServiceImpl implements HouseInfoService {
 		// TODO Auto-generated method stub
 		return repo.selectHouseInfoByAptName(aptName);
 	}
+
+	@Override
+    public HouseInfoDto selectHouseInfoByAptSeq(String aptSeq) {
+        return repo.selectHouseInfoByAptSeq(aptSeq);
+    }
 }

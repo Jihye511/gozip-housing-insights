@@ -60,6 +60,10 @@ public class HouseDealServiceImpl implements HouseDealService{
 	    return repo.getAvgPriceByArea(aptSeq);
 	}
 
+	@Override
+	public List<Map<String, Object>> getYearlyAvgPriceByArea(String aptSeq, String area) {
+	    return repo.getYearlyAvgPriceByArea(aptSeq, area);
+	}
 
 
 

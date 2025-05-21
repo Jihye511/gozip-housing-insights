@@ -54,5 +54,22 @@
 	        exclu_use_ar
 	</select>
     
+    <select id="getYearlyAvgPriceByArea"
+	        parameterType="map"
+	        resultType="map">
+	    SELECT 
+	        deal_year AS year,
+	        ROUND(AVG(REPLACE(deal_amount, ',', '') + 0)) AS avgPrice
+	    FROM 
+	        housedeals
+	    WHERE 
+	        apt_seq = #{aptSeq}
+	        AND exclu_use_ar = #{area}
+	    GROUP BY 
+	        deal_year
+	    ORDER BY 
+	        deal_year
+	</select>
+    
 
 </mapper>

@@ -15,4 +15,6 @@ public interface HouseDealService {
     int deleteHouseDeal(String id)throws Exception;
     List<HouseDealDto> selectHouseDealbyDongcode(String dongcode) throws Exception;
 	List<AvgPriceDto> getAvgPriceByArea(String aptSeq);
+	List<Map<String, Object>> getYearlyAvgPriceByArea(String aptSeq, String area);
+
 }

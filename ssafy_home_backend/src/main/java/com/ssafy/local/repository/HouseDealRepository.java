@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.ssafy.local.dto.AvgPriceDto;
 import com.ssafy.local.dto.HouseDealDto;
@@ -16,6 +17,8 @@ public interface HouseDealRepository {
     int insertHouseDeal(HouseDealDto dto)throws Exception;
     int deleteHouseDeal(String id)throws Exception;
     List<AvgPriceDto> getAvgPriceByArea(String aptSeq);
+    List<Map<String, Object>> getYearlyAvgPriceByArea(@Param("aptSeq") String aptSeq,
+            @Param("area") String area);
 
 
 }
