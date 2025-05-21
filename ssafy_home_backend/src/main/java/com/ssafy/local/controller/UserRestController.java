@@ -9,6 +9,8 @@ import com.ssafy.local.dto.UserDto;
 import com.ssafy.local.oauth.CustomOAuth2User;
 import com.ssafy.local.service.UserService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -148,5 +150,27 @@ public class UserRestController {
             response.put("error", "An error occurred during registration.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+        
+        
     }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+    	System.out.println("로그아웃 요청");
+        Cookie accessToken = new Cookie("Authorization", null);
+        accessToken.setMaxAge(0);
+        accessToken.setPath("/");
+        accessToken.setHttpOnly(true); // 중요!
+        
+        Cookie refreshToken = new Cookie("Refresh-Token", null);
+        refreshToken.setMaxAge(0);
+        refreshToken.setPath("/");
+        refreshToken.setHttpOnly(true); // 중요!
+
+        response.addCookie(accessToken);
+        response.addCookie(refreshToken);
+        
+        return ResponseEntity.ok("Logged out");
+    }
+
+
 }

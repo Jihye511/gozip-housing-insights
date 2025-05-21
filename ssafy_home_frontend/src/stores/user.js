@@ -21,9 +21,15 @@ export const useUserStore = defineStore('user', {
       }
     },
     logout() {
-      document.cookie = 'Authorization=; Max-Age=0; path=/';
-      this.user = null;
-      window.location.reload();
+      fetch('http://localhost:8080/api/user/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+        .catch((e) => console.error('Logout failed', e))
+        .finally(async() => {
+          this.user = null;
+          window.location.href = '/'; // 또는 router.push("/")
+        });
     },
   },
 });

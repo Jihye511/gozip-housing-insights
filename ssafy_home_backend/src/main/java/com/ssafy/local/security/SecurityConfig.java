@@ -1,5 +1,6 @@
 package com.ssafy.local.security;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
@@ -42,8 +43,8 @@ public class SecurityConfig {
 				configuration.setAllowedHeaders(Collections.singletonList("*"));
 				configuration.setMaxAge(3600L);
 
-				configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-				configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+				configuration.setExposedHeaders(Arrays.asList("Set-Cookie", "Authorization"));
+
 				return configuration;
 			}
 		}));
@@ -64,7 +65,17 @@ public class SecurityConfig {
 				.successHandler(customSuccessHandler));
 
 		// 경로별 인가 작업
-		http.authorizeHttpRequests((auth) -> auth.requestMatchers("/").permitAll().anyRequest().authenticated());
+		http.authorizeHttpRequests(auth -> auth
+			    .requestMatchers(
+			        "/", 
+			        "/api/apt/**", 
+			        "/api/reviews/**",      // 🔓 리뷰 조회는 로그인 없이 허용
+			        "/oauth2/**", 
+			        "/login/oauth2/**",
+			        "/api/user/logout"
+			    ).permitAll()
+			    .anyRequest().authenticated()
+			);
 		// 세션 설정 : STATELESS
 		http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
