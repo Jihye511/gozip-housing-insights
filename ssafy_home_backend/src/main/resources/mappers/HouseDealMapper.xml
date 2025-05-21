@@ -39,5 +39,20 @@
         FROM housedeals
         WHERE apt_seq = #{aptseq}
     </select>
+    
+    <select id="getAvgPriceByArea" parameterType="string" resultType="com.ssafy.local.dto.AvgPriceDto">
+	    SELECT 
+	        CAST(exclu_use_ar AS CHAR) AS area,
+	        ROUND(AVG(REPLACE(deal_amount, ',', '') + 0)) AS avgPrice
+	    FROM 
+	        housedeals
+	    WHERE 
+	        apt_seq = #{aptSeq}
+	    GROUP BY 
+	        exclu_use_ar
+	    ORDER BY 
+	        exclu_use_ar
+	</select>
+    
 
 </mapper>

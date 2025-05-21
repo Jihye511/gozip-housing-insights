@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.local.dto.AvgPriceDto;
 import com.ssafy.local.dto.HouseDealDto;
 import com.ssafy.local.dto.HouseInfoDto;
 import com.ssafy.local.service.HouseDealService;
@@ -43,6 +44,23 @@ public class AptRestController {
                     .body(Map.of("error", "Error fetching apartment deals."));
         }
     }
+    
+    @GetMapping("/{aptSeq}/avg-prices")
+    private ResponseEntity<?> getAvgPriceByArea(@PathVariable String aptSeq) {
+        try {
+            List<AvgPriceDto> avgPrices = dealService.getAvgPriceByArea(aptSeq);
+            if (avgPrices == null || avgPrices.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "No average price data found for this apartment."));
+            }
+            return ResponseEntity.ok(avgPrices);
+        } catch (Exception e) {
+            log.error("Error fetching average prices for aptSeq: {}", aptSeq, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error fetching average prices."));
+        }
+    }
+    
 
     @GetMapping("/search")
     private ResponseEntity<?> searchApt(@RequestParam(required = false) String aptName,
