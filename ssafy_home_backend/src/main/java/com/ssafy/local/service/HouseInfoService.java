@@ -20,5 +20,7 @@ public interface HouseInfoService {
     // 시군구로 주택 정보찾기
 	List<HouseInfoDto> selectHouseInfoByAddress(String sido_name, String gugun_name, String dong_name) throws Exception;
 	List<HouseInfoDto> selectHouseInfoByAptName(String aptName) throws Exception;
+	HouseInfoDto selectHouseInfoByAptSeq(String aptSeq);
+
 }
 

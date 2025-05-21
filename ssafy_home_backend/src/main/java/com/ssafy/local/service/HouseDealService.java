@@ -1,7 +1,9 @@
 package com.ssafy.local.service;
 
 import java.util.List;
+import java.util.Map;
 
+import com.ssafy.local.dto.AvgPriceDto;
 import com.ssafy.local.dto.HouseDealDto;
 
 
@@ -12,4 +14,7 @@ public interface HouseDealService {
     int insertHouseDeal(HouseDealDto dto)throws Exception;
     int deleteHouseDeal(String id)throws Exception;
     List<HouseDealDto> selectHouseDealbyDongcode(String dongcode) throws Exception;
+	List<AvgPriceDto> getAvgPriceByArea(String aptSeq);
+	List<Map<String, Object>> getYearlyAvgPriceByArea(String aptSeq, String area);
+
 }

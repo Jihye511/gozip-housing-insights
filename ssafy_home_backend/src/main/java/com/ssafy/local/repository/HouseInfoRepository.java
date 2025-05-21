@@ -21,4 +21,6 @@ public interface HouseInfoRepository {
     
 	List<HouseInfoDto> selectHouseInfobyDongCode(String dongCode) throws Exception;
 	List<HouseInfoDto> selectHouseInfoByAptName(String aptName)throws Exception;
+	HouseInfoDto selectHouseInfoByAptSeq(String aptSeq);
+
 }

@@ -2,9 +2,11 @@ package com.ssafy.local.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.ssafy.local.dto.AvgPriceDto;
 import com.ssafy.local.dto.HouseDealDto;
 import com.ssafy.local.dto.HouseInfoDto;
 import com.ssafy.local.repository.HouseDealRepository;
@@ -52,6 +54,17 @@ public class HouseDealServiceImpl implements HouseDealService{
 		}
 		return deals;
 	}
+
+	@Override
+	public List<AvgPriceDto> getAvgPriceByArea(String aptSeq) {
+	    return repo.getAvgPriceByArea(aptSeq);
+	}
+
+	@Override
+	public List<Map<String, Object>> getYearlyAvgPriceByArea(String aptSeq, String area) {
+	    return repo.getYearlyAvgPriceByArea(aptSeq, area);
+	}
+
 
 
 }
