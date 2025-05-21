@@ -108,10 +108,17 @@
 
         <div>
           <h4 class="font-semibold text-sm text-gray-700">시세 그래프</h4>
-          <div class="h-24 bg-gray-100 rounded flex items-center justify-center text-gray-400">
-            시세 그래프 영역
+          <div class="bg-gray-100 rounded p-2">
+            <AptPriceChart
+              v-if="yearlyPrices.length"
+              :key="selectedApt?.apt_seq + selectedArea"
+              :yearlyPrices="yearlyPrices"
+            />
+
+            <p v-else class="text-gray-400 text-center py-6">시세 데이터가 없습니다.</p>
           </div>
         </div>
+
 
         <div>
           <h4 class="font-semibold text-sm text-gray-700">거주자 리뷰</h4>
@@ -135,9 +142,13 @@
 <script>
 import { fetchRegionList } from '@/utils/regionApi'
 import axios from '@/axios/axios' // ✅ src/axios/axios.js 기준의 절대 경로
+import AptPriceChart from '@/components/AptPriceChart.vue'
 
 export default {
   name: 'MapPage',
+  components:{
+    AptPriceChart,
+  },
   data() {
     return {
       // 기존 상태 유지
@@ -159,6 +170,7 @@ export default {
       areaList: [],        //평수 리스트
       selectedArea: '',    //선택된 평수
       yearlyPrices: [],    //연도별 가격
+
     }
   },
   computed: {
@@ -219,7 +231,7 @@ export default {
     async fetchYearlyPrices() {
       if (!this.selectedApt || !this.selectedArea) return
       try {
-        const res = await axios.get(`/apt/${this.selectedApt.apt_seq}/price-by-year`, {
+        const res = await axios.get(`/apt/${this.selectedApt.apt_seq}/priceByYear`, {
           params: { area: this.selectedArea }
         })
         this.yearlyPrices = res.data
