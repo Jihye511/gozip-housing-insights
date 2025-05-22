@@ -1,34 +1,63 @@
 package com.ssafy.local.controller;
 
 import com.ssafy.local.dto.ReviewDto;
+import com.ssafy.local.oauth.CustomOAuth2User;
+import com.ssafy.local.service.FileStorageService;
 import com.ssafy.local.service.ReviewService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.security.Principal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/reviews")
+@RequiredArgsConstructor
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final FileStorageService fileStorageService;
+	
 
-    @Autowired
-    public ReviewController(ReviewService reviewService) {
-        this.reviewService = reviewService;
-    }
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> createReview(
+            Principal principal,
+            @RequestParam("apt_id")  String aptId,
+            @RequestParam("score")   int score,
+            @RequestParam("content") String content,
+            @RequestPart(name = "image", required = false) MultipartFile image
+    ) {
+        String userId = principal.getName();
+        String imageUrl = null;
+        try {
+            if (image != null && !image.isEmpty()) {
+                imageUrl = fileStorageService.store(image);
+            }
+            ReviewDto dto = ReviewDto.builder()
+                .user_id(userId)
+                .apt_id(aptId)
+                .score(score)
+                .content(content)
+                .image_file(imageUrl)
+                .build();
 
-    // 리뷰 생성 API (이미지 base64 포함)
-    @PostMapping
-    public ResponseEntity<String> createReview(@RequestBody ReviewDto reviewDto) {
-        boolean isCreated = reviewService.createReview(reviewDto);
-        if (isCreated) {
-            return ResponseEntity.ok("Review created successfully");
+            boolean ok = reviewService.createReview(dto);
+            return ok
+                ? ResponseEntity.ok("Review created")
+                : ResponseEntity.status(500).body("Failed to create review");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
-        return ResponseEntity.status(500).body("Failed to create review");
     }
-
     // 특정 아파트에 대한 모든 리뷰 조회 API
     @GetMapping("/{apartmentId}")
     public ResponseEntity<List<ReviewDto>> getReviewsByApartmentId(@PathVariable String apartmentId) {
@@ -41,11 +70,16 @@ public class ReviewController {
 
     // 리뷰 삭제 API
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<String> deleteReview(@PathVariable int reviewId) {
-        boolean isDeleted = reviewService.deleteReview(reviewId);
-        if (isDeleted) {
-            return ResponseEntity.ok("Review deleted successfully");
+    public ResponseEntity<String> deleteReview(
+            @PathVariable int reviewId,
+            Principal principal) {
+
+        boolean ok = reviewService.deleteReview(reviewId, principal.getName());
+        if (ok) {
+            return ResponseEntity.ok("삭제 성공");
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                 .body("삭제 권한이 없습니다.");
         }
-        return ResponseEntity.status(500).body("Failed to delete review");
     }
 }

@@ -73,7 +73,8 @@ public class SecurityConfig {
 		// 경로별 인가 작업
 		http.authorizeHttpRequests(auth -> auth
 			    .requestMatchers(
-			        "/", 
+			        "/",
+			        "/api/**",
 			        "/api/apt/**", 
 			        "/api/reviews/**",      // 🔓 리뷰 조회는 로그인 없이 허용
 			        "/oauth2/**", 

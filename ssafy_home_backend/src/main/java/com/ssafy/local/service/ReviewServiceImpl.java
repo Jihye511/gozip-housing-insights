@@ -36,13 +36,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     // 리뷰 삭제
     @Override
-    public boolean deleteReview(int reviewId) {
-        try {
-            int result = repo.deleteReviewById(reviewId);
-            return result > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
+    public boolean deleteReview(int reviewId, String requesterUserId) {
+        // 1) DB에서 실제 작성자 조회
+        String ownerId = repo.findUserIdByReviewId(reviewId);
+        // 2) 작성자와 요청자가 다르면 삭제 금지
+        if (ownerId == null || !ownerId.equals(requesterUserId)) {
             return false;
         }
+        // 3) 같으면 삭제
+        return repo.deleteReviewById(reviewId) > 0;
     }
 }
