@@ -20,6 +20,7 @@ import com.ssafy.local.jwt.JWTUtil;
 import com.ssafy.local.oauth.CustomOAuth2UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -38,9 +39,9 @@ public class SecurityConfig {
 			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 				CorsConfiguration configuration = new CorsConfiguration();
 				configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
-				configuration.setAllowedMethods(Collections.singletonList("*"));
+				configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 				configuration.setAllowCredentials(true);
-				configuration.setAllowedHeaders(Collections.singletonList("*"));
+				configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "X-Requested-With"));
 				configuration.setMaxAge(3600L);
 
 				configuration.setExposedHeaders(Arrays.asList("Set-Cookie", "Authorization"));
@@ -57,7 +58,12 @@ public class SecurityConfig {
 		http.httpBasic((auth) -> auth.disable());
 		// JWTFilter 추가
 		http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
+		http.exceptionHandling(exception -> exception
+	            .authenticationEntryPoint((request, response, authException) -> {
+	                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+	                response.setContentType("application/json;charset=UTF-8");
+	                response.getWriter().write("{\"error\": \"Unauthorized\"}");
+	            }));
 		// oauth2
 		http.oauth2Login((oauth2) -> oauth2
 				.userInfoEndpoint(
@@ -72,7 +78,8 @@ public class SecurityConfig {
 			        "/api/reviews/**",      // 🔓 리뷰 조회는 로그인 없이 허용
 			        "/oauth2/**", 
 			        "/login/oauth2/**",
-			        "/api/user/logout"
+			        "/api/user/logout",
+			        "/login/oauth2/code/naver"
 			    ).permitAll()
 			    .anyRequest().authenticated()
 			);
