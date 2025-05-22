@@ -136,6 +136,22 @@
     <div class="flex-1 bg-gray-50 relative">
       <div id="map" class="absolute inset-0 z-0"></div>
     </div>
+  <!-- ✅ 오른쪽 하단 고정 버튼 -->
+    <button
+        class="fixed bottom-20 right-10 bg-green-600 text-white text-3xl px-20 py-20 rounded-full shadow-lg hover:bg-green-700"
+
+      @click="showModal = true"
+    >
+      AI 추천!
+    </button>
+
+    <!-- ✅ 모달 컴포넌트 연결 -->
+    <AIRecommendationModal
+      :visible="showModal"
+      @close="showModal = false"
+      @submit="handleAISubmit"
+    />
+
   </div>
 </template>
 
@@ -143,11 +159,13 @@
 import { fetchRegionList } from '@/utils/regionApi'
 import axios from '@/axios/axios' // ✅ src/axios/axios.js 기준의 절대 경로
 import AptPriceChart from '@/components/AptPriceChart.vue'
+import AIRecommendationModal from '@/components/AIRecommendationModal.vue'
 
 export default {
   name: 'MapPage',
   components:{
     AptPriceChart,
+    AIRecommendationModal,
   },
   data() {
     return {
@@ -170,7 +188,7 @@ export default {
       areaList: [],        //평수 리스트
       selectedArea: '',    //선택된 평수
       yearlyPrices: [],    //연도별 가격
-
+      showModal: false,
     }
   },
   computed: {
@@ -185,6 +203,11 @@ export default {
     this.fetchSido()
   },
   methods: {
+    handleAISubmit(region) {
+      this.showAiModal = false
+      console.log('AI 추천 요청 받은 지역:', region)
+      // TODO: 여기서 AI 추천 API 호출
+    },
     loadKakaoMapScript() {
       if (window.kakao && window.kakao.maps) {
         this.initMap()
