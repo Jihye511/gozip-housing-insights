@@ -22,6 +22,12 @@ public class JWTFilter extends OncePerRequestFilter{
 	private final JWTUtil jwtUtil;
 	//
 	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+	    String path = request.getRequestURI();
+	    return path.startsWith("/api/recommend"); // 이 경로는 JWT 검증 생략
+	}
+
+	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		 //cookie들을 불러온 뒤 Authorization Key에 담긴 쿠키를 찾음

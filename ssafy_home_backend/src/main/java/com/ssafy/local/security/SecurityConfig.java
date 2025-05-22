@@ -2,6 +2,7 @@ package com.ssafy.local.security;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +39,7 @@ public class SecurityConfig {
 			@Override
 			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 				CorsConfiguration configuration = new CorsConfiguration();
-				configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+				configuration.setAllowedOrigins(List.of("http://localhost:5173","http://localhost:8080"));
 				configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 				configuration.setAllowCredentials(true);
 				configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "X-Requested-With"));
@@ -79,7 +80,8 @@ public class SecurityConfig {
 			        "/oauth2/**", 
 			        "/login/oauth2/**",
 			        "/api/user/logout",
-			        "/login/oauth2/code/naver"
+			        "/login/oauth2/code/naver",
+			        "/api/**"
 			    ).permitAll()
 			    .anyRequest().authenticated()
 			);
