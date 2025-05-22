@@ -28,15 +28,15 @@
 
     <!-- 회원 등록 -->
     <insert id="insertUser" parameterType="com.ssafy.local.dto.UserDto">
-        INSERT INTO user(user_id, email, pw, name, phone)
-        VALUES(#{user_id}, #{email}, #{pw}, #{name}, #{phone})
+        INSERT INTO user(user_id, email, pw, name, phone, role)
+        VALUES(#{user_id}, #{email}, #{pw}, #{name}, #{phone}, #{role})
     </insert>
 
     <!-- ID로 회원 조회 -->
     <select id="selectUserByID" parameterType="string" resultType="com.ssafy.local.dto.UserDto">
         SELECT user_id, email, pw, name, phone, c_date
         FROM user
-        WHERE user_id = #{id}
+        WHERE user_id = #{user_id}
     </select>
 
     <!-- 회원 삭제 -->

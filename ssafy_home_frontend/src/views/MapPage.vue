@@ -125,7 +125,7 @@
           <ul class="text-sm text-gray-700 space-y-1">
             <li v-if="reviews.length === 0" class="text-gray-400">리뷰가 없습니다.</li>
             <li v-for="(review, index) in reviews" :key="index">
-              "{{ review.content }}" — {{ review.writer }} | {{ review.date }}
+              "{{ review.content }}" — {{ review.user_id }} | {{ review.score }}
             </li>
           </ul>
         </div>
@@ -250,7 +250,7 @@ export default {
       this.map.setCenter(latLng)
       this.map.setLevel(2)
 
-      // ✅ 아파트 및 리뷰 설정
+      // 아파트 및 리뷰 설정
       this.selectedApt = apt
       
       //아파트 상세정보 불러오기
@@ -265,7 +265,6 @@ export default {
       try {
         const res = await axios.get(`/reviews/${apt.apt_seq}`)
         this.reviews = res.data
-        console.log(res.data.apt_id)
       } catch (error) {
         console.error('리뷰 불러오기 실패:', error)
         this.reviews = []
