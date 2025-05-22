@@ -1,23 +1,25 @@
 <script>
 import { useUserStore } from '@/stores/user'
 import { onMounted } from 'vue'
-
+import { useRouter } from 'vue-router'
 export default {
   name: 'HeaderComponent',
   setup() {
     const userStore = useUserStore()
-
+    const router = useRouter()
     onMounted(() => {
       userStore.fetchUser()
+      
     })
 
-    const loginWithNaver = () => {
-      window.location.href = 'http://localhost:8080/oauth2/authorization/naver'
+    // 로그인 페이지로 네비게이트
+    const goLogin = () => {
+      router.push('/login')
     }
 
     return {
       userStore,
-      loginWithNaver,
+      goLogin,
       logout: userStore.logout, // ✅ 이제 서버 로그아웃 처리 포함됨
     }
   },
@@ -47,7 +49,7 @@ export default {
           <button @click="logout" class="bg-gray-500 text-white px-4 py-1 rounded">로그아웃</button>
         </div>
 
-        <button v-else @click="loginWithNaver" class="bg-green-500 text-white px-4 py-1 rounded">
+        <button v-else @click="goLogin" class="bg-green-500 text-white px-4 py-1 rounded">
           로그인
         </button>
       </nav>

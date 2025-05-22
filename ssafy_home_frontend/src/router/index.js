@@ -4,6 +4,7 @@ import MapPage from '@/views/MapPage.vue';
 import CommunityPage from '@/views/CommunityPage.vue';
 import CalculatorPage from '@/views/CalculatorPage.vue';
 import LoginPage from '@/views/LoginPage.vue';
+import SignUpPage from '@/views/SignUpPage.vue'
 
 const routes = [
   { path: '/', component: MainPage },
@@ -11,6 +12,7 @@ const routes = [
   { path: '/community', component: CommunityPage },
   { path: '/calculator', component: CalculatorPage },
   { path: '/login', component: LoginPage },
+  { path: '/signup', component: SignUpPage },
 ];
 
 const router = createRouter({

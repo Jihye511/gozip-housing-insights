@@ -39,8 +39,8 @@ export default {
       review: {
         content: '',
         score: '',
+        image_file: '',
       },
-      imageFile:null,
     }
   },
   computed: {
@@ -49,28 +49,26 @@ export default {
     },
   },
   methods: {
-  onFileChange(e) {
-    this.imageFile = e.target.files[0];
+    onFileChange(e) {
+      const file = e.target.files[0]
+      if (!file) return
+      const reader = new FileReader()
+      reader.onload = () => {
+        this.review.image_file = reader.result
+        // "data:image/jpeg;base64,...." 형태
+      }
+      reader.readAsDataURL(file)
+    },
+    async submit() {
+      this.review.apt_id = this.aptId
+      try {
+        await axios.post('/reviews', this.review)
+        this.$emit('submitted')
+        this.$emit('close')
+      } catch (err) {
+        alert('리뷰 등록에 실패했습니다.')
+      }
+    },
   },
-  async submit() {
-    const form = new FormData();
-    form.append('apt_id',  this.aptId);
-    form.append('score',   this.review.score);
-    form.append('content', this.review.content);
-    if (this.imageFile) {
-      form.append('image', this.imageFile);
-    }
-    try {
-      await axios.post('/reviews', form, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      this.$emit('submitted');
-      this.$emit('close');
-    } catch (err) {
-      console.error('리뷰 등록 실패', err);
-      alert('리뷰 등록에 실패했습니다.');
-    }
-  }
-},
 }
 </script>

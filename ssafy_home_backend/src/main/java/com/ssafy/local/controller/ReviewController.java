@@ -26,38 +26,23 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final FileStorageService fileStorageService;
 	
-
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    //Base64 쓰기위한 JSON
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createReview(
             Principal principal,
-            @RequestParam("apt_id")  String aptId,
-            @RequestParam("score")   int score,
-            @RequestParam("content") String content,
-            @RequestPart(name = "image", required = false) MultipartFile image
+            @RequestBody ReviewDto dto
     ) {
-        String userId = principal.getName();
-        String imageUrl = null;
-        try {
-            if (image != null && !image.isEmpty()) {
-                imageUrl = fileStorageService.store(image);
-            }
-            ReviewDto dto = ReviewDto.builder()
-                .user_id(userId)
-                .apt_id(aptId)
-                .score(score)
-                .content(content)
-                .image_file(imageUrl)
-                .build();
-
-            boolean ok = reviewService.createReview(dto);
-            return ok
-                ? ResponseEntity.ok("Review created")
-                : ResponseEntity.status(500).body("Failed to create review");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Error: " + e.getMessage());
-        }
+    	System.out.print(principal);
+        // 로그인 사용자 아이디 덮어쓰기
+        dto.setUser_id(principal.getName());
+        // dto.image_file에는 이미 “data:image/…;base64,…” 형태 문자열이 담김
+        boolean ok = reviewService.createReview(dto);
+        return ok 
+             ? ResponseEntity.ok("Review created")
+             : ResponseEntity.status(500).body("Failed to create review");
     }
+    
+    
     // 특정 아파트에 대한 모든 리뷰 조회 API
     @GetMapping("/{apartmentId}")
     public ResponseEntity<List<ReviewDto>> getReviewsByApartmentId(@PathVariable String apartmentId) {
