@@ -47,5 +47,10 @@
         FROM houseinfos
         WHERE apt_nm LIKE CONCAT('%', #{aptName}, '%')
     </select>
+    <select id="selectHouseInfoByAptSeq" parameterType="string" resultType="com.ssafy.local.dto.HouseInfoDto">
+	    SELECT * FROM houseinfos
+	    WHERE apt_seq = #{aptSeq}
+	</select>
+    
 
 </mapper>
