@@ -17,4 +17,7 @@ public interface ReviewRepository {
     
     // 리뷰 삭제 (리뷰 ID로 삭제)
     int deleteReviewById(int reviewId);
+    
+    String findUserIdByReviewId(int reviewId);
+
 }

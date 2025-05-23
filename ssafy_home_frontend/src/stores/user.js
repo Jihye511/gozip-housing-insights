@@ -4,6 +4,9 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
   }),
+  getters:{
+    userId:(state)=>state.user?.user_id||null,
+  },
   actions: {
     async fetchUser() {
       try {

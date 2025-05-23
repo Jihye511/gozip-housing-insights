@@ -16,4 +16,5 @@ public class ReviewDto {
 	private int score;
 	private String content;
 	private String image_file;
+	private String userName;
 }

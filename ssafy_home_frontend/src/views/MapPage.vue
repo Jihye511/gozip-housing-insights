@@ -1,12 +1,13 @@
 <template>
   <div class="h-screen bg-gray-100 flex">
-
     <!-- Sidebar -->
     <aside class="w-64 bg-white border-r p-4 flex flex-col">
       <router-link to="/" class="flex items-center space-x-2 hover:opacity-80">
         <img src="@/assets/gozip_logo.png" alt="로고" class="h-6 w-auto" />
         <h2 class="text-xl font-bold text-green-600">검색</h2>
       </router-link>
+
+      <!-- 지역 검색 -->
       <div>
         <label class="block text-sm font-medium mb-1">지역으로 검색</label>
         <select class="w-full border p-2 rounded mb-2" v-model="sido" @change="fetchGugun">
@@ -31,57 +32,50 @@
           검색
         </button>
       </div>
+
+      <!-- 아파트명 검색 -->
       <div>
         <label class="block text-sm font-medium mb-1">아파트로 검색</label>
         <div class="flex items-center gap-2">
-          <input
-            class="flex-1 border p-2 rounded"
-            placeholder="아파트명을 입력하세요"
-            v-model="aptName"
-          />
+          <input class="flex-1 border p-2 rounded" placeholder="아파트명을 입력하세요" v-model="aptName" />
           <button class="bg-green-600 text-white px-3 py-2 rounded" @click="searchByAptName">
             검색
           </button>
         </div>
       </div>
 
-        <div class="overflow-y-auto mt-4" style="max-height: calc(100vh - 300px);">
-          <h3 class="font-bold text-gray-700 mb-2">검색 결과</h3>
-          <ul class="space-y-2">
-            <li
-              v-for="apt in aptList"
-              :key="apt.apt_seq"
-              class="border p-2 rounded hover:bg-gray-100 cursor-pointer"
-              @click="moveToApt(apt)"
-            >
-              <p class="font-semibold">{{ apt.apt_nm }}</p>
-              <p class="text-xs text-gray-500">{{ apt.road_nm }} {{ apt.road_nm_bonbun }}</p>
-              <p class="text-green-600 text-sm">
-                <span v-if="apt.dealList && apt.dealList.length">
-                  {{ formatPrice(apt.dealList[0].deal_amount) }}
-                </span>
-                <span v-else>정보 없음</span>
-              </p>
-            </li>
-          </ul>
-        </div>
-      </aside>
+      <!-- 검색 결과 목록 -->
+      <div class="overflow-y-auto mt-4" style="max-height: calc(100vh - 300px)">
+        <h3 class="font-bold text-gray-700 mb-2">검색 결과</h3>
+        <ul class="space-y-2">
+          <li v-for="apt in aptList" :key="apt.apt_seq" class="border p-2 rounded hover:bg-gray-100 cursor-pointer"
+            @click="moveToApt(apt)">
+            <p class="font-semibold">{{ apt.apt_nm }}</p>
+            <p class="text-xs text-gray-500">{{ apt.road_nm }} {{ apt.road_nm_bonbun }}</p>
+            <p class="text-green-600 text-sm">
+              <span v-if="apt.dealList && apt.dealList.length">{{
+                formatPrice(apt.dealList[0].deal_amount)
+                }}</span>
+              <span v-else>정보 없음</span>
+            </p>
+          </li>
+        </ul>
+      </div>
+    </aside>
 
-    <!-- Info Panel -->
+    <!-- 상세 정보 패널 -->
     <div class="w-[360px] bg-white p-4 border-r" v-if="aptDetailInfo">
       <h2 class="text-xl font-bold mb-2">{{ aptDetailInfo.aptName }}</h2>
       <p class="text-gray-600 text-sm mb-4">{{ aptDetailInfo.address }}</p>
-        {{ selectedApt.road_nm }} {{ selectedApt.road_nm_bonbun }}  
       <div class="space-y-2">
         <div>
           <h4 class="font-semibold text-sm text-gray-700">가격 및 정보</h4>
           <p class="text-sm">
-            <span v-if="selectedApt.dealList?.length">
-              {{ formatPrice(selectedApt.dealList[0].deal_amount) }} •
-            </span>
+            <span v-if="selectedApt.dealList?.length">{{ formatPrice(selectedApt.dealList[0].deal_amount) }} •</span>
             {{ selectedApt.area || '84m²' }} • 아파트
           </p>
         </div>
+
         <div v-if="areaList.length">
           <label class="text-sm font-semibold">평수 선택</label>
           <select v-model="selectedArea" @change="fetchYearlyPrices" class="w-full p-2 border rounded mt-1">
@@ -90,10 +84,13 @@
             </option>
           </select>
         </div>
+
         <div v-if="selectedAvgPrice">
           <p class="text-sm mt-2 text-gray-700">
             선택한 평수의 평균 매매가:
-            <span class="font-semibold text-green-600">{{ formatPrice(selectedAvgPrice.toString()) }}</span>
+            <span class="font-semibold text-green-600">{{
+              formatPrice(selectedAvgPrice.toString())
+              }}</span>
           </p>
         </div>
 
@@ -109,33 +106,37 @@
         <div>
           <h4 class="font-semibold text-sm text-gray-700">시세 그래프</h4>
           <div class="bg-gray-100 rounded p-2">
-            <AptPriceChart
-              v-if="yearlyPrices.length"
-              :key="selectedApt?.apt_seq + selectedArea"
-              :yearlyPrices="yearlyPrices"
-            />
-
+            <AptPriceChart v-if="yearlyPrices.length" :key="selectedApt?.apt_seq + selectedArea"
+              :yearlyPrices="yearlyPrices" />
             <p v-else class="text-gray-400 text-center py-6">시세 데이터가 없습니다.</p>
           </div>
         </div>
 
-
         <div>
           <h4 class="font-semibold text-sm text-gray-700">거주자 리뷰</h4>
+          <button @click="checkCertification()" class="text-sm text-white bg-green-600 px-3 py-1 rounded mb-2">
+            리뷰 작성
+          </button>
           <ul class="text-sm text-gray-700 space-y-1">
-            <li v-if="reviews.length === 0" class="text-gray-400">리뷰가 없습니다.</li>
-            <li v-for="(review, index) in reviews" :key="index">
-              "{{ review.content }}" — {{ review.user_id }} | {{ review.score }}
+            <li v-for="review in reviews" :key="review.review_id" class="flex flex-col gap-2 border-b pb-2">
+              <p>"{{ review.content }}" — {{ review.userName }} | {{ review.score }}점</p>
+              <img v-if="review.image_file" :src="review.image_file" alt="리뷰 이미지"
+                class="w-32 h-32 object-cover rounded" />
+              <button v-if="review.user_id === userStore.userId" @click="deleteReview(review.review_id)"
+                class="self-end text-xs text-red-500 hover:underline">
+                삭제
+              </button>
             </li>
           </ul>
         </div>
       </div>
     </div>
 
-    <!-- Map 영역 -->
+    <!-- 지도 -->
     <div class="flex-1 bg-gray-50 relative">
       <div id="map" class="absolute inset-0 z-0"></div>
     </div>
+
   <!-- ✅ 오른쪽 하단 고정 버튼 -->
     <button
         class="fixed bottom-20 right-10 bg-green-600 text-white text-3xl px-20 py-20 rounded-full shadow-lg hover:bg-green-700"
@@ -152,24 +153,39 @@
       @submit="handleAISubmit"
     />
 
+    <!-- 리뷰 모달 -->
+    <ReviewModal v-if="showReviewModal" :aptId="selectedApt?.apt_seq.toString()" @close="showReviewModal = false"
+      @submitted="moveToApt(selectedApt)" />
+
+    <!-- 인증 모달 -->
+    <CertifyModal v-if="showCertifyModal" :aptSeq="selectedApt?.apt_seq.toString()" @close="showCertifyModal = false" />
   </div>
 </template>
 
 <script>
 import { fetchRegionList } from '@/utils/regionApi'
-import axios from '@/axios/axios' // ✅ src/axios/axios.js 기준의 절대 경로
+import axios from '@/axios/axios'
 import AptPriceChart from '@/components/AptPriceChart.vue'
 import AIRecommendationModal from '@/components/AIRecommendationModal.vue'
+import ReviewModal from '@/components/ReviewModal.vue'
+import CertifyModal from '@/components/CertifyModal.vue'
+import { useUserStore } from '@/stores/user'
+
 
 export default {
   name: 'MapPage',
-  components:{
+  components: {
     AptPriceChart,
     AIRecommendationModal,
+    ReviewModal,
+    CertifyModal,
+  },
+  setup() {
+    const userStore = useUserStore()
+    return { userStore }
   },
   data() {
     return {
-      // 기존 상태 유지
       mapReady: false,
       sido: '',
       gugun: '',
@@ -181,23 +197,24 @@ export default {
       dongList: [],
       map: null,
       markers: [],
-      // ✅ 새로 추가
       selectedApt: null,
       reviews: [],
       aptDetailInfo: null,
+
       areaList: [],        //평수 리스트
       selectedArea: '',    //선택된 평수
       yearlyPrices: [],    //연도별 가격
       showModal: false,
+      showReviewModal: false,
+      showCertifyModal: false,
     }
   },
   computed: {
     selectedAvgPrice() {
       const match = this.areaList.find((item) => item.area === this.selectedArea)
       return match ? match.avgPrice : null
-    }
+    },
   },
-
   mounted() {
     this.loadKakaoMapScript()
     this.fetchSido()
@@ -225,26 +242,15 @@ export default {
         level: 3,
       })
       this.mapReady = true
-      // this.drawMarkers();
     },
     drawMarkers() {
-      if (!this.map) {
-        console.warn('지도 객체가 아직 초기화되지 않았습니다.')
-        return
-      }
+      if (!this.map) return
       this.markers.forEach((marker) => marker.setMap(null))
       this.markers = []
-
       this.aptList.forEach((apt) => {
-        if (!apt.latitude || !apt.latitude) {
-          console.warn('위치 정보 누락:', apt)
-          return
-        }
-        console.log(typeof apt.latitude, apt.latitude)
-
+        if (!apt.latitude || !apt.longitude) return
         const marker = new kakao.maps.Marker({
           position: new kakao.maps.LatLng(parseFloat(apt.latitude), parseFloat(apt.longitude)),
-
           map: this.map,
           title: apt.apt_nm,
         })
@@ -255,7 +261,7 @@ export default {
       if (!this.selectedApt || !this.selectedArea) return
       try {
         const res = await axios.get(`/apt/${this.selectedApt.apt_seq}/priceByYear`, {
-          params: { area: this.selectedArea }
+          params: { area: this.selectedArea },
         })
         this.yearlyPrices = res.data
       } catch (err) {
@@ -263,20 +269,12 @@ export default {
         this.yearlyPrices = []
       }
     },
-
-
     async moveToApt(apt) {
       if (!apt.latitude || !apt.longitude) return
-
-      // 지도 이동
       const latLng = new kakao.maps.LatLng(parseFloat(apt.latitude), parseFloat(apt.longitude))
       this.map.setCenter(latLng)
       this.map.setLevel(2)
-
-      // 아파트 및 리뷰 설정
       this.selectedApt = apt
-      
-      //아파트 상세정보 불러오기
       try {
         const res = await axios.get(`/apt/${apt.apt_seq}/info`)
         this.aptDetailInfo = res.data
@@ -284,16 +282,13 @@ export default {
         console.error('아파트 정보 조회 실패:', err)
         this.aptDetailInfo = null
       }
-
       try {
         const res = await axios.get(`/reviews/${apt.apt_seq}`)
         this.reviews = res.data
-      } catch (error) {
-        console.error('리뷰 불러오기 실패:', error)
+      } catch (err) {
+        console.error('리뷰 불러오기 실패:', err)
         this.reviews = []
       }
-
-      // 평수 리스트
       try {
         const res = await axios.get(`/apt/${apt.apt_seq}/avg-prices`)
         this.areaList = res.data
@@ -306,20 +301,26 @@ export default {
         this.areaList = []
       }
     },
-
+    async deleteReview(reviewId) {
+      if (!confirm('이 리뷰를 삭제하시겠습니까?')) return
+      try {
+        await axios.delete(`/reviews/${reviewId}`)
+        alert('리뷰가 삭제되었습니다.')
+        await this.moveToApt(this.selectedApt)
+      } catch (err) {
+        console.error('리뷰 삭제 실패:', err)
+        alert(err.response?.data || '삭제 권한이 없습니다.')
+      }
+    },
     formatPrice(priceStr) {
-      const raw = parseInt(priceStr.replace(/[^0-9]/g, '')) // "17500" → 17500 (만원 단위)
-
+      const raw = parseInt(priceStr.replace(/[^0-9]/g, ''))
       if (isNaN(raw)) return '정보 없음'
-
-      const eok = Math.floor(raw / 10000) // 억 단위
-      const cheon = Math.floor((raw % 10000) / 1000) // 천 단위
-
+      const eok = Math.floor(raw / 10000)
+      const cheon = Math.floor((raw % 10000) / 1000)
       if (eok > 0 && cheon > 0) return `${eok}억 ${cheon * 1000}만원`
       if (eok > 0) return `${eok}억`
       return `${raw.toLocaleString()}만원`
     },
-
     async fetchSido() {
       const data = await fetchRegionList('*00000000')
       this.sidoList = data.regcodes.map((r) => ({ code: r.code, name: r.name }))
@@ -349,10 +350,7 @@ export default {
         const data = await response.json()
         this.aptList = data
         await this.fetchDealsForAptList()
-        if (this.aptList.length > 0) {
-          this.moveToApt(this.aptList[0])
-        }
-        // this.drawMarkers();
+        if (this.aptList.length > 0) this.moveToApt(this.aptList[0])
       } catch (error) {
         console.error('지역 검색 실패:', error)
       }
@@ -364,10 +362,7 @@ export default {
         const data = await response.json()
         this.aptList = data
         await this.fetchDealsForAptList()
-        // this.drawMarkers();
-        if (this.aptList.length > 0) {
-          this.moveToApt(this.aptList[0])
-        }
+        if (this.aptList.length > 0) this.moveToApt(this.aptList[0])
       } catch (error) {
         console.error('아파트명 검색 실패:', error)
       }
@@ -378,24 +373,14 @@ export default {
           try {
             const res = await fetch(`/api/apt/${apt.apt_seq}/deals`)
             const deals = await res.json()
-            return {
-              ...apt,
-              dealList: deals,
-            }
+            return { ...apt, dealList: deals }
           } catch (e) {
-            console.error(`거래 정보 불러오기 실패: ${apt.apt_nm}`, e)
-            return {
-              ...apt,
-              dealList: [],
-            }
+            console.error(`거래 정보 실패: ${apt.apt_nm}`, e)
+            return { ...apt, dealList: [] }
           }
         }),
       )
-
       this.aptList = updatedList
-      // this.drawMarkers();
-
-      // ✅ map이 준비된 후에만 마커를 그림
       if (this.mapReady) {
         this.drawMarkers()
       } else {
@@ -405,6 +390,34 @@ export default {
             clearInterval(check)
           }
         }, 100)
+      }
+    },
+    async checkCertification() {
+      // 1) 로그인 체크
+      if (!this.userStore.user) {
+        alert('로그인이 필요합니다.')
+        return
+      }
+
+      // 2) 인증 상태 API 호출
+      try {
+        const res = await axios.get('/certifications/status', {
+          params: { aptSeq: this.selectedApt.apt_seq },
+          withCredentials: true,
+        })
+        const { approval } = res.data
+
+        // 3) 승인 상태일 때만 모달 열기
+        if (approval === 'APPROVED') {
+          this.showReviewModal = true
+        } else {
+          alert('리뷰를 작성하려면 실거주 인증이 필요합니다. 인증 페이지로 이동합니다.')
+          this.showCertifyModal = true;
+        }
+      } catch (err) {
+        // 404 (요청 없음) 등 모든 실패 케이스
+        alert('실거주 인증이 필요합니다. 인증 페이지로 이동합니다.')
+        this.showCertifyModal = true
       }
     },
   },
