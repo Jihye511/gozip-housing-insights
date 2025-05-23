@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserDto> selectUserAll() throws Exception {
-		return null;
+		return repo.selectUserAll();
 	}
 
 	@Override

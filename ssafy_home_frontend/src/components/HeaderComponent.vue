@@ -9,7 +9,7 @@ export default {
     const router = useRouter()
     onMounted(() => {
       userStore.fetchUser()
-      
+
     })
 
     // 로그인 페이지로 네비게이트
@@ -41,10 +41,15 @@ export default {
         <router-link to="/community" class="text-gray-700 hover:underline">커뮤니티</router-link>
         <router-link to="/calculator" class="text-gray-700 hover:underline">계산기</router-link>
 
+        <!-- 관리자 전용 -->
+        <router-link v-if="userStore.user?.role === 'ROLE_ADMIN'" to="/admin" class="text-gray-700 hover:underline">
+          관리자
+        </router-link>
+
+
         <div v-if="userStore.user" class="flex items-center space-x-4">
           <span class="text-sm text-gray-600">
-            안녕하세요, <strong>{{ userStore.user.name || userStore.user.user_id }}</strong
-            >님
+            안녕하세요, <strong>{{ userStore.user.name || userStore.user.user_id }}</strong>님
           </span>
           <button @click="logout" class="bg-gray-500 text-white px-4 py-1 rounded">로그아웃</button>
         </div>

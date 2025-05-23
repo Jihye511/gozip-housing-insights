@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,6 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
+@EnableMethodSecurity(prePostEnabled = true)  // ← 이 줄
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -106,6 +108,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 퍼미션 설정: 누구나 접근 허용
                 .requestMatchers(
+                		"/**",
                     "/api/auth/**",        // 일반 로그인/회원가입
                     "/oauth2/**",
                     "/login/oauth2/**",

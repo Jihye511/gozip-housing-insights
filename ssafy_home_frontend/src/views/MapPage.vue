@@ -37,11 +37,7 @@
       <div>
         <label class="block text-sm font-medium mb-1">아파트로 검색</label>
         <div class="flex items-center gap-2">
-          <input
-            class="flex-1 border p-2 rounded"
-            placeholder="아파트명을 입력하세요"
-            v-model="aptName"
-          />
+          <input class="flex-1 border p-2 rounded" placeholder="아파트명을 입력하세요" v-model="aptName" />
           <button class="bg-green-600 text-white px-3 py-2 rounded" @click="searchByAptName">
             검색
           </button>
@@ -52,18 +48,14 @@
       <div class="overflow-y-auto mt-4" style="max-height: calc(100vh - 300px)">
         <h3 class="font-bold text-gray-700 mb-2">검색 결과</h3>
         <ul class="space-y-2">
-          <li
-            v-for="apt in aptList"
-            :key="apt.apt_seq"
-            class="border p-2 rounded hover:bg-gray-100 cursor-pointer"
-            @click="moveToApt(apt)"
-          >
+          <li v-for="apt in aptList" :key="apt.apt_seq" class="border p-2 rounded hover:bg-gray-100 cursor-pointer"
+            @click="moveToApt(apt)">
             <p class="font-semibold">{{ apt.apt_nm }}</p>
             <p class="text-xs text-gray-500">{{ apt.road_nm }} {{ apt.road_nm_bonbun }}</p>
             <p class="text-green-600 text-sm">
               <span v-if="apt.dealList && apt.dealList.length">{{
                 formatPrice(apt.dealList[0].deal_amount)
-              }}</span>
+                }}</span>
               <span v-else>정보 없음</span>
             </p>
           </li>
@@ -79,20 +71,14 @@
         <div>
           <h4 class="font-semibold text-sm text-gray-700">가격 및 정보</h4>
           <p class="text-sm">
-            <span v-if="selectedApt.dealList?.length"
-              >{{ formatPrice(selectedApt.dealList[0].deal_amount) }} •</span
-            >
+            <span v-if="selectedApt.dealList?.length">{{ formatPrice(selectedApt.dealList[0].deal_amount) }} •</span>
             {{ selectedApt.area || '84m²' }} • 아파트
           </p>
         </div>
 
         <div v-if="areaList.length">
           <label class="text-sm font-semibold">평수 선택</label>
-          <select
-            v-model="selectedArea"
-            @change="fetchYearlyPrices"
-            class="w-full p-2 border rounded mt-1"
-          >
+          <select v-model="selectedArea" @change="fetchYearlyPrices" class="w-full p-2 border rounded mt-1">
             <option v-for="item in areaList" :key="item.area" :value="item.area">
               {{ item.area }}㎡
             </option>
@@ -104,7 +90,7 @@
             선택한 평수의 평균 매매가:
             <span class="font-semibold text-green-600">{{
               formatPrice(selectedAvgPrice.toString())
-            }}</span>
+              }}</span>
           </p>
         </div>
 
@@ -120,41 +106,24 @@
         <div>
           <h4 class="font-semibold text-sm text-gray-700">시세 그래프</h4>
           <div class="bg-gray-100 rounded p-2">
-            <AptPriceChart
-              v-if="yearlyPrices.length"
-              :key="selectedApt?.apt_seq + selectedArea"
-              :yearlyPrices="yearlyPrices"
-            />
+            <AptPriceChart v-if="yearlyPrices.length" :key="selectedApt?.apt_seq + selectedArea"
+              :yearlyPrices="yearlyPrices" />
             <p v-else class="text-gray-400 text-center py-6">시세 데이터가 없습니다.</p>
           </div>
         </div>
 
         <div>
           <h4 class="font-semibold text-sm text-gray-700">거주자 리뷰</h4>
-          <button
-            @click="showReviewModal = true"
-            class="text-sm text-white bg-green-600 px-3 py-1 rounded mb-2"
-          >
+          <button @click="checkCertification()" class="text-sm text-white bg-green-600 px-3 py-1 rounded mb-2">
             리뷰 작성
           </button>
           <ul class="text-sm text-gray-700 space-y-1">
-            <li
-              v-for="review in reviews"
-              :key="review.review_id"
-              class="flex flex-col gap-2 border-b pb-2"
-            >
+            <li v-for="review in reviews" :key="review.review_id" class="flex flex-col gap-2 border-b pb-2">
               <p>"{{ review.content }}" — {{ review.userName }} | {{ review.score }}점</p>
-              <img
-                v-if="review.image_file"
-                :src="review.image_file"
-                alt="리뷰 이미지"
-                class="w-32 h-32 object-cover rounded"
-              />
-              <button
-                v-if="review.user_id === userStore.userId"
-                @click="deleteReview(review.review_id)"
-                class="self-end text-xs text-red-500 hover:underline"
-              >
+              <img v-if="review.image_file" :src="review.image_file" alt="리뷰 이미지"
+                class="w-32 h-32 object-cover rounded" />
+              <button v-if="review.user_id === userStore.userId" @click="deleteReview(review.review_id)"
+                class="self-end text-xs text-red-500 hover:underline">
                 삭제
               </button>
             </li>
@@ -169,12 +138,11 @@
     </div>
 
     <!-- 리뷰 모달 -->
-    <ReviewModal
-      v-if="showReviewModal"
-      :aptId="selectedApt?.apt_seq.toString()"
-      @close="showReviewModal = false"
-      @submitted="moveToApt(selectedApt)"
-    />
+    <ReviewModal v-if="showReviewModal" :aptId="selectedApt?.apt_seq.toString()" @close="showReviewModal = false"
+      @submitted="moveToApt(selectedApt)" />
+
+    <!-- 인증 모달 -->
+    <CertifyModal v-if="showCertifyModal" :aptSeq="selectedApt?.apt_seq.toString()" @close="showCertifyModal = false" />
   </div>
 </template>
 
@@ -183,13 +151,16 @@ import { fetchRegionList } from '@/utils/regionApi'
 import axios from '@/axios/axios'
 import AptPriceChart from '@/components/AptPriceChart.vue'
 import ReviewModal from '@/components/ReviewModal.vue'
+import CertifyModal from '@/components/CertifyModal.vue'
 import { useUserStore } from '@/stores/user'
+
 
 export default {
   name: 'MapPage',
   components: {
     AptPriceChart,
     ReviewModal,
+    CertifyModal,
   },
   setup() {
     const userStore = useUserStore()
@@ -215,6 +186,7 @@ export default {
       selectedArea: '',
       yearlyPrices: [],
       showReviewModal: false,
+      showCertifyModal: false,
     }
   },
   computed: {
@@ -393,6 +365,34 @@ export default {
             clearInterval(check)
           }
         }, 100)
+      }
+    },
+    async checkCertification() {
+      // 1) 로그인 체크
+      if (!this.userStore.user) {
+        alert('로그인이 필요합니다.')
+        return
+      }
+
+      // 2) 인증 상태 API 호출
+      try {
+        const res = await axios.get('/certifications/status', {
+          params: { aptSeq: this.selectedApt.apt_seq },
+          withCredentials: true,
+        })
+        const { approval } = res.data
+
+        // 3) 승인 상태일 때만 모달 열기
+        if (approval === 'APPROVED') {
+          this.showReviewModal = true
+        } else {
+          alert('리뷰를 작성하려면 실거주 인증이 필요합니다. 인증 페이지로 이동합니다.')
+          this.showCertifyModal = true;
+        }
+      } catch (err) {
+        // 404 (요청 없음) 등 모든 실패 케이스
+        alert('실거주 인증이 필요합니다. 인증 페이지로 이동합니다.')
+        this.showCertifyModal = true
       }
     },
   },
