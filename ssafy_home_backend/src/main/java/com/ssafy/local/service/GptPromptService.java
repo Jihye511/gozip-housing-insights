@@ -1,10 +1,13 @@
 package com.ssafy.local.service;
 
 import com.ssafy.local.dto.AiRequestDto;
+import com.ssafy.local.dto.HouseInfoDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -13,58 +16,51 @@ public class GptPromptService {
 
     private final ChatClient.Builder chatClientBuilder;
 
-    public String getGptResponse(AiRequestDto request) {
-        try {
-            ChatClient chatClient = chatClientBuilder.build();
+    public String recommendFromList(AiRequestDto request, List<HouseInfoDto> candidates) {
+        ChatClient chatClient = chatClientBuilder.build();
 
-            // 프롬프트 구성
-            StringBuilder userMessage = new StringBuilder();
-            userMessage.append("지역: ")
+        StringBuilder userMessage = new StringBuilder();
+
+        userMessage.append("다음은 ")
                 .append(request.getSido()).append(" ")
                 .append(request.getGugun()).append(" ")
-                .append(request.getDong()).append("\n");
+                .append(request.getDong()).append(" 지역의 아파트 목록입니다.\n")
+                .append("이 목록에 있는 아파트 중에서 조건에 맞는 아파트를 4개 추천해주세요.\n")
+                .append("[조건]\n")
+                .append("- 목적: ").append(request.getPurpose()).append("\n")
+                .append("- 예산: ").append(request.getBudget()).append("\n")
+                .append("- 평수: ").append(request.getArea()).append("\n")
+                .append("- 주거 환경: ")
+                .append(request.getEnv() != null ? String.join(", ", request.getEnv()) : "정보 없음").append("\n\n")
+                .append("[아파트 목록]\n");
 
-            userMessage.append("주거 환경: ")
-                .append(request.getEnv() != null ? String.join(", ", request.getEnv()) : "정보 없음").append("\n");
+        int idx = 1;
+        for (HouseInfoDto apt : candidates) {
+            userMessage.append(idx++).append(". ")
+                    .append(apt.getApt_nm()).append(" - ")
+                    .append(apt.getBuild_year()).append("년 준공, 주소: ")
+                    .append(apt.getRoad_nm()).append(" ")
+                    .append(apt.getRoad_nm_bonbun());
+            if (apt.getRoad_nm_bubun() != null && !apt.getRoad_nm_bubun().isEmpty()) {
+                userMessage.append("-").append(apt.getRoad_nm_bubun());
+            }
+            userMessage.append("\n");
+        }
 
-            userMessage.append("목적: ")
-                .append(request.getPurpose() != null ? String.join(", ", request.getPurpose()) : "정보 없음").append("\n");
+        userMessage.append("\n위 목록 중 조건을 만족하는 4개의 아파트를 추천 사유와 함께 아래 형식으로 작성해주세요.\n")
+                    .append("1. [아파트명] - 추천 사유\n")
+                    .append("2. ...\n");
 
-            userMessage.append("예산: ")
-                .append(request.getBudget() != null ? request.getBudget() : "정보 없음").append("\n");
+        String prompt = "당신은 부동산 추천 전문가입니다. 아래 사용자의 조건에 따라 제공된 아파트 목록 중에서 정확히 4개를 선택해 추천하고 그 이유를 작성하세요. 제공된 목록에 없는 아파트는 절대 추천하지 마세요.";
 
-            userMessage.append("평수: ")
-                .append(request.getArea() != null ? request.getArea() : "정보 없음").append("\n");
+        log.info("\uD83D\uDCAC GPT에 보낼 프롬프트:\n{}", userMessage);
 
-            String prompt = """
-            		당신은 부동산 추천 전문가입니다.
-            		아래 조건에 맞는 아파트를 **정확히 4개** 추천해 주세요.
-
-            		각 아파트는 다음 형식으로 출력해 주세요:
-            		1. 아파트 이름
-            		2. 추천 사유
-
-            		결과는 다음과 같은 형식을 따라 주세요:
-
-            		1. [아파트명1] - 추천 사유1
-            		2. [아파트명2] - 추천 사유2
-            		3. [아파트명3] - 추천 사유3
-            		4. [아파트명4] - 추천 사유4
-
-            		추가 설명 없이 위 형식으로만 출력해 주세요.
-            		""";
-
-           System.out.println(prompt);
-            var response = chatClient.prompt()
+        var response = chatClient.prompt()
                 .system(prompt)
-                .user(userMessage.toString() + "\n위 조건을 반영하여 아파트를 추천해 주세요. 추천 사유도 함께 작성해 주세요.")
+                .user(userMessage.toString())
                 .call();
 
-            return response.content();
-
-        } catch (Exception ex) {
-            log.error("GPT 추천 요청 중 오류 발생", ex);
-            return "GPT 추천 중 오류가 발생했습니다.";
-        }
+        return response.content();
     }
-}
+} 
+	

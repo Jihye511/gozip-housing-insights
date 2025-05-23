@@ -21,6 +21,7 @@ public interface HouseInfoService {
 	List<HouseInfoDto> selectHouseInfoByAddress(String sido_name, String gugun_name, String dong_name) throws Exception;
 	List<HouseInfoDto> selectHouseInfoByAptName(String aptName) throws Exception;
 	HouseInfoDto selectHouseInfoByAptSeq(String aptSeq);
+	List<String> findSeqByNames(List<String> aptNames);
 
 }
 

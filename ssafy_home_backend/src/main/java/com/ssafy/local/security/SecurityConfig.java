@@ -76,6 +76,7 @@ public class SecurityConfig {
 			    .requestMatchers(
 			        "/", 
 			        "/api/apt/**", 
+			        "/api/apt/aptseqList",
 			        "/api/reviews/**",      // 🔓 리뷰 조회는 로그인 없이 허용
 			        "/oauth2/**", 
 			        "/login/oauth2/**",

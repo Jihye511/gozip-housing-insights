@@ -1,41 +1,54 @@
 package com.ssafy.local.controller;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ssafy.local.dto.AiRequestDto;
+import com.ssafy.local.dto.HouseInfoDto;
 import com.ssafy.local.service.GptPromptService;
-
+import com.ssafy.local.service.HouseInfoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/recommend")
 @RequiredArgsConstructor
 public class RecommendationController {
 
+    private final HouseInfoService infoService;
     private final GptPromptService gptPromptService;
 
-    @PostMapping
-    public String getRecommendation(@RequestBody AiRequestDto request) {
-    	System.out.println("🔥 POST /api/recommend 호출됨");
-        StringBuilder sb = new StringBuilder();
-        sb.append("지역: ")
-          .append(request.getSido()).append(" ")
-          .append(request.getGugun()).append(" ")
-          .append(request.getDong()).append("\n");
+    @PostMapping()
+    public ResponseEntity<?> recommendUsingDbList(@RequestBody AiRequestDto request) {
+        try {
+            String dongCode = request.getDongCode();
+            log.info("🔥 받은 dongCode: {}", request.getDongCode());
 
-        sb.append("주거 환경: ")
-          .append(request.getEnv() != null ? String.join(", ", request.getEnv()) : "정보 없음").append("\n");
+            if (dongCode == null || dongCode.trim().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "dongCode는 필수입니다."));
+            }
 
-        sb.append("목적: ")
-          .append(request.getPurpose() != null ? String.join(", ", request.getPurpose()) : "정보 없음").append("\n");
+            // InfoService의 기존 로직 재사용
+            List<HouseInfoDto> apartmentList = infoService.selectHouseInfobyDongCode(dongCode);
 
-        sb.append("예산: ").append(request.getBudget() != null ? request.getBudget() : "정보 없음").append("\n");
-        sb.append("평수: ").append(request.getArea() != null ? request.getArea() : "정보 없음").append("\n");
+            if (apartmentList == null || apartmentList.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "해당 동의 아파트 정보가 없습니다."));
+            }
 
-        return gptPromptService.getGptResponse(request);
+            // GPT에 전달하여 추천 받기
+            String result = gptPromptService.recommendFromList(request, apartmentList);
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            log.error("AI 추천 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "AI 추천 중 오류가 발생했습니다."));
+        }
     }
-
 }
