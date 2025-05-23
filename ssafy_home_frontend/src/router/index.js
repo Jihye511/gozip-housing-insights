@@ -9,7 +9,7 @@ import AdminPage from '@/views/AdminPage.vue'
 import { useUserStore } from '@/stores/user'
 const routes = [
   { path: '/', component: MainPage },
-  { path: '/map', component: MapPage },
+  { path: '/map', name: 'MapPage', component: MapPage },
   { path: '/community', component: CommunityPage },
   { path: '/calculator', component: CalculatorPage },
   { path: '/login', component: LoginPage },
