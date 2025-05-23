@@ -3,6 +3,7 @@ package com.ssafy.local.repository;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.ssafy.local.dto.HouseInfoDto;
 
@@ -21,6 +22,6 @@ public interface HouseInfoRepository {
     
 	List<HouseInfoDto> selectHouseInfobyDongCode(String dongCode) throws Exception;
 	List<HouseInfoDto> selectHouseInfoByAptName(String aptName)throws Exception;
-	HouseInfoDto selectHouseInfoByAptSeq(String aptSeq);
-
+	HouseInfoDto selectHouseInfoByAptSeq(String aptSeq);	
+	List<String> findSeqByNames(@Param("aptNames") List<String> aptNames);
 }

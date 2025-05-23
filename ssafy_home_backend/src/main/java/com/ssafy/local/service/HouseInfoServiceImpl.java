@@ -67,4 +67,9 @@ public class HouseInfoServiceImpl implements HouseInfoService {
 	    return repo.selectHouseInfoByAptSeq(aptSeq);
 	}
 
+	@Override
+	public List<String> findSeqByNames(List<String> aptNames) {
+		return repo.findSeqByNames(aptNames);
+	}
+
 }

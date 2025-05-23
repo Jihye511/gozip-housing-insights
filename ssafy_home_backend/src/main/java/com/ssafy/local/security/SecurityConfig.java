@@ -2,6 +2,7 @@ package com.ssafy.local.security;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,7 +46,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
     /**
      * AuthenticationManager 빈 등록 (DAO 기반 인증)
      */
@@ -68,7 +68,7 @@ public class SecurityConfig {
                 @Override
                 public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+                    config.setAllowedOrigins(Collections.singletonList("http://localhost:5173","http://localhost:8080"));
                     config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(Arrays.asList("Content-Type","Authorization","X-Requested-With"));
@@ -86,6 +86,7 @@ public class SecurityConfig {
             .formLogin(login -> login.disable())
             .httpBasic(basic -> basic.disable())
 
+		
             // JWT 필터를 UsernamePasswordAuthenticationFilter 이전에 추가
             .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
 

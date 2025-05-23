@@ -53,4 +53,21 @@
 	</select>
     
 
+
+	<select id="findSeqByNames" resultType="list" parameterType="map">
+	  SELECT apt_seq
+	  FROM houseinfos
+	  <where>
+	    <if test="aptNames != null and aptNames.size() > 0">
+	      AND apt_nm IN
+	      <foreach collection="aptNames" item="name" open="(" separator="," close=")">
+	        #{name}
+	      </foreach>
+	    </if>
+	  </where>
+	</select>
+
+
+    
+
 </mapper>

@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -108,6 +110,21 @@ public class AptRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error fetching yearly average prices."));
         }
+    }
+
+    @PostMapping("/aptseqList")
+    public ResponseEntity<?> getAptSeqList(@RequestBody Map<String, List<String>> body) {
+        List<String> aptNames = body.get("aptNames");
+        log.info("[🧪 백엔드] 받은 아파트 이름 리스트: {}", aptNames); // 로그 출력
+
+        
+        
+        if (aptNames == null || aptNames.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "아파트 이름 목록이 비어있습니다."));
+        }
+        List<String> aptSeqList = infoService.findSeqByNames(aptNames);
+        log.info("[✅ 백엔드] 조회된 apt_seq 리스트: {}", aptSeqList); // 결과 확인x
+        return ResponseEntity.ok(aptSeqList);
     }
 
 
