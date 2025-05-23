@@ -30,14 +30,11 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserDto> selectUserAll() throws Exception {
-		return null;
+		return repo.selectUserAll();
 	}
 
 	@Override
 	public int insertUser(UserDto dto) throws Exception {
-		String rawPw=dto.getPw();
-		String hashedPw=MyHash.hash(rawPw);
-		dto.setPw(hashedPw);
 		return repo.insertUser(dto);
 	}
 

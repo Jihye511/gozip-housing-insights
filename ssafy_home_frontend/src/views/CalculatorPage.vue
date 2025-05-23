@@ -51,7 +51,7 @@
               <button @click="append('-')" class="btn">-</button>
               <button @click="append('0')" class="btn">0</button>
               <button @click="append('.')" class="btn">.</button>
-              <button @click="calculate" class="btn bg-blue-500 text-white">=</button>
+              <button @click="calculate" class="btn">=</button>
               <button @click="append('+')" class="btn">+</button>
               <button @click="clear" class="col-span-4 bg-red-500 text-white rounded py-2 mt-2">C</button>
             </div>
