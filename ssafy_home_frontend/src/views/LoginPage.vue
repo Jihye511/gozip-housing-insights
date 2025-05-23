@@ -1,41 +1,97 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="w-full max-w-md bg-white p-6 rounded shadow">
+      <h1 class="text-2xl font-bold mb-6 text-center">로그인</h1>
 
-    <main class="flex justify-center items-center py-10">
-      <div class="w-full max-w-sm bg-white p-8 rounded shadow">
-        <h2 class="text-center text-2xl font-bold mb-2">로그인</h2>
-        <p class="text-center text-gray-500 mb-6">계정 정보를 입력하여 로그인하세요</p>
-        <form class="space-y-4">
-          <div>
-            <label class="block mb-1 text-sm font-medium">아이디</label>
-            <input type="text" placeholder="아이디를 입력하세요" class="w-full border p-2 rounded" />
-          </div>
-          <div>
-            <label class="block mb-1 text-sm font-medium">비밀번호</label>
-            <div class="flex justify-between items-center">
-              <input type="password" placeholder="비밀번호를 입력하세요" class="w-full border p-2 rounded" />
-              <a href="#" class="ml-2 text-blue-600 text-sm hover:underline">비밀번호 찾기</a>
-            </div>
-          </div>
-          <div class="flex items-center space-x-2">
-            <input id="remember" type="checkbox" class="border rounded" />
-            <label for="remember" class="text-sm">아이디 기억하기</label>
-          </div>
-          <button type="submit" class="w-full bg-black text-white py-2 rounded">로그인</button>
-        </form>
-        <p class="text-center text-sm text-gray-600 mt-4">
-          계정이 없으신가요? <a href="#" class="text-blue-600 hover:underline">회원가입</a>
-        </p>
+      <!-- 일반 로그인 폼 -->
+      <form @submit.prevent="onSubmit" class="space-y-4">
+        <div>
+          <label class="block text-sm mb-1">아이디</label>
+          <input
+            v-model="username"
+            type="text"
+            class="w-full border rounded p-2"
+            required
+          />
+        </div>
+        <div>
+          <label class="block text-sm mb-1">비밀번호</label>
+          <input
+            v-model="password"
+            type="password"
+            class="w-full border rounded p-2"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          class="w-full bg-green-600 text-white py-2 rounded"
+        >
+          로그인
+        </button>
+      </form>
+      <div class="mt-4 text-center">
+        <span class="text-sm text-gray-600">계정이 없으신가요?</span>
+        <!-- 회원가입 페이지로 이동 -->
+        <router-link
+          to="/signup"
+          class="ml-2 text-sm text-green-600 hover:underline"
+        >
+          회원가입
+        </router-link>
       </div>
-    </main>
+      <div class="my-6 text-center text-gray-500">또는</div>
+
+      <!-- 네이버 OAuth 버튼 -->
+      <button
+        @click="onNaverLogin"
+        class="w-full bg-[#03C75A] text-white py-2 rounded flex items-center justify-center"
+      >
+        <!-- <img src="@/assets/naver_logo.png" alt="네이버 로고" class="h-5 mr-2" /> -->
+        네이버로 로그인
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
+import axios from '@/axios/axios'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import {ref} from 'vue'
+
 export default {
   name: 'LoginPage',
-};
+  setup() {
+    const router = useRouter()
+    const userStore = useUserStore()
+    const username = ref('')
+    const password = ref('')
+
+    const onSubmit = async () => {
+      try {
+        await axios.post('/auth/login', {
+          username: username.value,
+          password: password.value
+        })
+        // 로그인 성공하면 유저 정보 불러오기
+        await userStore.fetchUser()
+        router.push('/')  // 원하는 페이지로 이동
+      } catch (err) {
+        alert('로그인에 실패했습니다.')
+        console.error(err)
+      }
+    }
+
+    const onNaverLogin = () => {
+      window.location.href = 'http://localhost:8080/oauth2/authorization/naver'
+    }
+
+    return { username, password, onSubmit, onNaverLogin }
+  }
+}
 </script>
 
 <style scoped>
+/* 필요하면 스타일 추가 */
 </style>

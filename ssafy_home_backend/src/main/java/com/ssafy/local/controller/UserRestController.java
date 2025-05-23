@@ -2,11 +2,14 @@ package com.ssafy.local.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import com.ssafy.local.dto.CertificationDto;
 import com.ssafy.local.dto.UserDto;
 import com.ssafy.local.oauth.CustomOAuth2User;
+import com.ssafy.local.service.CertificationService;
 import com.ssafy.local.service.UserService;
 
 import jakarta.servlet.http.Cookie;
@@ -14,7 +17,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,7 +30,7 @@ import java.util.Map;
 public class UserRestController {
 
     private final UserService userService;
-
+    
     // ✅ [READ] My Page
     @GetMapping("/mypage")
     public ResponseEntity<?> mypage(@AuthenticationPrincipal CustomOAuth2User customUser) {
@@ -172,6 +177,38 @@ public class UserRestController {
         
         return ResponseEntity.ok("Logged out");
     }
-
-
+    
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserDto>> listAllUsers() {
+    	System.out.println("회원 리스트 호출");
+        try {
+            List<UserDto> list = userService.selectUserAll();
+            System.out.println(list);
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            log.error("Error fetching all users", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    /** 관리자가 특정 회원을 삭제 */
+    @DeleteMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteAnyUser(@PathVariable String userId) {
+        try {
+            int rows = userService.deleteUser(userId);
+            if (rows > 0) {
+                return ResponseEntity.ok("User " + userId + " deleted.");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+            }
+        } catch (Exception e) {
+            log.error("Error deleting user {}", userId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Deletion failed.");
+        }
+    }
+    
+    
+    
 }

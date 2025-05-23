@@ -11,7 +11,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080', // 스프링 서버 주소
         changeOrigin: true
-      }
+      },
+      '/uploads': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
     }
   },
   plugins: [
