@@ -136,21 +136,39 @@
     <div class="flex-1 bg-gray-50 relative">
       <div id="map" class="absolute inset-0 z-0"></div>
     </div>
-  <!-- ✅ 오른쪽 하단 고정 버튼 -->
-    <button
+  <!--  오른쪽 하단 고정 버튼 -->
+    <div>
+      <button
         class="fixed bottom-20 right-10 bg-green-600 text-white text-3xl px-20 py-20 rounded-full shadow-lg hover:bg-green-700"
 
-      @click="showModal = true"
+        @click="showModal = true"
+      >
+        AI 추천!
+      </button>
+    </div>
+    
+    <!-- AI 추천 결과 영역 -->
+    <div
+      v-if="responseData"
+      id="ai-result-section"
+      class="mt-6 bg-white p-4 rounded shadow border w-full max-w-2xl mx-auto"
     >
-      AI 추천!
-    </button>
-
-    <!-- ✅ 모달 컴포넌트 연결 -->
+      <h3 class="text-lg font-semibold text-green-700 mb-2">📌 AI 추천 결과</h3>
+      <pre class="text-sm whitespace-pre-wrap">{{ responseData }}</pre>
+    </div>
+    <!-- 모달 컴포넌트 연결 -->
     <AIRecommendationModal
+      :visible="showModal" 
+      @close="showModal = false"
+      @confirm="handleConfirmedRecommendations"
+    />
+
+
+    <!-- <AIRecommendationModal
       :visible="showModal"
       @close="showModal = false"
       @submit="handleAISubmit"
-    />
+    /> -->
 
   </div>
 </template>
@@ -189,6 +207,7 @@ export default {
       selectedArea: '',    //선택된 평수
       yearlyPrices: [],    //연도별 가격
       showModal: false,
+      responseData: null,
     }
   },
   computed: {
@@ -203,10 +222,71 @@ export default {
     this.fetchSido()
   },
   methods: {
+    async handleConfirmedRecommendations(aptNames) {
+      console.log('🧩 받은 추천 아파트 이름들:', aptNames)
+
+      try {
+        const aptInfoList = []
+
+        for (const name of aptNames) {
+          const res = await axios.get('/apt/search', {
+            params: { aptName: name }
+          })
+
+          // 여러 개일 수 있으므로 배열 합치기
+          aptInfoList.push(...res.data)
+        }
+
+        this.aptList = aptInfoList
+
+        await this.fetchDealsForAptList()
+        if (this.aptList.length > 0) {
+          this.moveToApt(this.aptList[0])
+        }
+      } catch (error) {
+        console.error('추천 결과 이동 중 오류 발생', error)
+        alert('추천 결과를 불러오는 중 오류가 발생했습니다.')
+      }
+    },
+
+
+    extractAptNames(responseText) {
+      const matches = [...responseText.matchAll(/\*\*(.+?)\*\*/g)]
+      return matches.map(match => match[1].trim())
+    },
+
+
+    async fetchDealsForAptList() {
+      const updatedList = await Promise.all(
+        this.aptList.map(async (apt) => {
+          try {
+            const res = await fetch(`/api/apt/${apt.apt_seq}/deals`)
+            const deals = await res.json()
+            return {
+              ...apt,
+              dealList: deals,
+            }
+          } catch (e) {
+            console.error(`거래 정보 불러오기 실패: ${apt.apt_nm}`, e)
+            return {
+              ...apt,
+              dealList: [],
+            }
+          }
+        })
+      )
+      this.aptList = updatedList
+      if (this.mapReady) this.drawMarkers()
+    },
     handleAISubmit(region) {
       this.showAiModal = false
       console.log('AI 추천 요청 받은 지역:', region)
       // TODO: 여기서 AI 추천 API 호출
+      this.responseData = data
+      this.$nextTick(() => {
+        const el = document.getElementById('ai-result-section')
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+      })
     },
     loadKakaoMapScript() {
       if (window.kakao && window.kakao.maps) {

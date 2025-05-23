@@ -7,7 +7,7 @@ import LoginPage from '@/views/LoginPage.vue';
 
 const routes = [
   { path: '/', component: MainPage },
-  { path: '/map', component: MapPage },
+  { path: '/map', name: 'MapPage', component: MapPage },
   { path: '/community', component: CommunityPage },
   { path: '/calculator', component: CalculatorPage },
   { path: '/login', component: LoginPage },
