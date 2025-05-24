@@ -115,7 +115,8 @@ public class SecurityConfig {
                     "/login/oauth2/**",
                     "/api/apt/**",         // 아파트 조회
                     "/api/reviews/**",
-                    "/api/user/**"// 리뷰 조회
+                    "/api/user/**",// 리뷰 조회
+                    "/community/**"
                 ).permitAll()
                 // 나머지 요청은 인증 필요
                 .anyRequest().authenticated()

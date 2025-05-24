@@ -1,6 +1,7 @@
 package com.ssafy.local.dto;
-import lombok.Builder;
+
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,11 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PostDto {
+public class CommentDto {
 	int board_id;
+	int comment_id;
 	String user_id;
 	String title;
 	String category;
 	String content;
-//	String date; //자동 주
+//	String date;
 }

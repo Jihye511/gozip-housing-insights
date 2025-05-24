@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.local.repository.CommunityRepository">
+	<insert id="createBoard" parameterType="com.ssafy.local.dto.PostDto" useGeneratedKeys="true" keyProperty="board_id">
+	
+		INSERT INTO board(user_id, title, category, content, created_at)
+		VALUES (#{user_id}, #{title}, #{category}, #{content}, NOW())
+	</insert>
+	<select id="getAllPosts" resultType="com.ssafy.local.dto.PostDto">
+	    SELECT * FROM board ORDER BY created_at DESC
+	  </select>
+	<select id="getPost" parameterType="int" resultType="com.ssafy.local.dto.PostDto">
+	    SELECT * FROM board WHERE board_id = #{boardId}
+	</select>
+	<delete id="deletePost" parameterType="int">
+	    DELETE FROM board WHERE board_id = #{boardId}
+	</delete>
+	<update id="updateBoard" parameterType="com.ssafy.local.dto.PostDto">
+	    UPDATE board
+	    SET title = #{title}, category = #{category}, content = #{content}
+	    WHERE board_id = #{board_id}
+	</update>
+	
+	<!-- 댓글  -->
+	<insert id="createComment" parameterType="com.ssafy.local.dto.CommentDto" useGeneratedKeys="true" keyProperty="comment_id">
+	    INSERT INTO comment (board_id, user_id, content, created_at)
+	    VALUES (#{board_id}, #{user_id}, #{content}, NOW())
+	</insert>
+	<select id="selectCommentsByBoardId" parameterType="int" resultType="com.ssafy.local.dto.CommentDto">
+	    SELECT * FROM comment WHERE board_id = #{boardId} ORDER BY created_at ASC
+	</select>
+	<select id="countComments" parameterType="int" resultType="int">
+    	SELECT COUNT(*) FROM comment WHERE board_id = #{boardId}
+  	</select>
+  	<delete id="deleteComment" parameterType="int">
+    	DELETE FROM comment WHERE comment_id = #{commentId}
+  	</delete>
+
+</mapper>
