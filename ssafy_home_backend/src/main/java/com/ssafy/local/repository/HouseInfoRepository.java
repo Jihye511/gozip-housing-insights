@@ -24,4 +24,10 @@ public interface HouseInfoRepository {
 	List<HouseInfoDto> selectHouseInfoByAptName(String aptName)throws Exception;
 	HouseInfoDto selectHouseInfoByAptSeq(String aptSeq);	
 	List<String> findSeqByNames(@Param("aptNames") List<String> aptNames);
+	List<HouseInfoDto> selectByBounds(
+	        @Param("swLat") double swLat,
+	        @Param("swLng") double swLng,
+	        @Param("neLat") double neLat,
+	        @Param("neLng") double neLng
+	    );
 }

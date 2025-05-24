@@ -67,7 +67,17 @@
 	  </where>
 	</select>
 
-
+	<select id="selectByBounds" resultType="com.ssafy.local.dto.HouseInfoDto">
+    SELECT
+      apt_seq,
+      apt_nm,
+      road_nm, road_nm_bonbun, road_nm_bubun,
+      latitude,
+      longitude
+    FROM houseinfos
+    WHERE latitude  BETWEEN #{swLat} AND #{neLat}
+      AND longitude BETWEEN #{swLng} AND #{neLng}
+  </select>
     
 
 </mapper>

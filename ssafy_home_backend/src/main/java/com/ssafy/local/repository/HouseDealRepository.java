@@ -20,5 +20,9 @@ public interface HouseDealRepository {
     List<Map<String, Object>> getYearlyAvgPriceByArea(@Param("aptSeq") String aptSeq,
             @Param("area") String area);
 
-
+    Double selectMonthlyAvg(
+            @Param("aptSeq") String aptSeq,
+            @Param("year")   int year,
+            @Param("month")  int month
+        );
 }
