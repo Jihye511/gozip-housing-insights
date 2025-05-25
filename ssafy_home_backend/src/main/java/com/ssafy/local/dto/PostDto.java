@@ -1,5 +1,8 @@
 package com.ssafy.local.dto;
 import lombok.Builder;
+
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,5 +17,5 @@ public class PostDto {
 	String title;
 	String category;
 	String content;
-//	String date; //자동 주
+	LocalDateTime created_at;
 }
