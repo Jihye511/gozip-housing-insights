@@ -3,8 +3,10 @@ package com.ssafy.local.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.ssafy.local.dto.CertificationDto;
 import com.ssafy.local.dto.UserDto;
@@ -209,6 +211,22 @@ public class UserRestController {
         }
     }
     
+    @GetMapping
+    public Map<String, Object> getCurrentUser(Authentication authentication) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        return Map.of(
+            "userId", authentication.getName(),
+            "role", isAdmin ? "ADMIN" : "USER"
+        );
+    }
+
+
     
     
 }

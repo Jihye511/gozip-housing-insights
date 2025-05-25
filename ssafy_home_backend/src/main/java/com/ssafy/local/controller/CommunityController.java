@@ -22,7 +22,7 @@ import com.ssafy.local.service.HouseInfoService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/community")
+@RequestMapping("/api/community")
 @RequiredArgsConstructor
 public class CommunityController {
 	private final CommunityService communityService;
