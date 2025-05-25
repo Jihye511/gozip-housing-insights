@@ -172,10 +172,11 @@ public class AptRestController {
             @RequestParam double swLat,
             @RequestParam double swLng,
             @RequestParam double neLat,
-            @RequestParam double neLng) {
-    	System.out.println("랭킹 호출");
-
-        List<RankingDto> ranking = rankingService.computeRectangleRanking(swLat, swLng, neLat, neLng);
+            @RequestParam double neLng,
+            @RequestParam int fromYear,
+            @RequestParam int toYear) {
+        List<RankingDto> ranking = rankingService.computeRectangleRanking(
+            swLat, swLng, neLat, neLng, fromYear, toYear);
         return ResponseEntity.ok(ranking);
     }
 }

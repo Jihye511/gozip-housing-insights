@@ -49,25 +49,100 @@
       </div>
 
       <!-- 검색 결과 목록 -->
-      <div class="overflow-y-auto mt-4" style="max-height: calc(100vh - 300px)">
-        <h3 class="font-bold text-gray-700 mb-2">검색 결과</h3>
-        <ul class="space-y-2">
-          <li
-            v-for="apt in aptList"
-            :key="apt.apt_seq"
-            class="border p-2 rounded hover:bg-gray-100 cursor-pointer"
-            @click="moveToApt(apt)"
-          >
-            <p class="font-semibold">{{ apt.apt_nm }}</p>
-            <p class="text-xs text-gray-500">{{ apt.road_nm }} {{ apt.road_nm_bonbun }}</p>
-            <p class="text-green-600 text-sm">
-              <span v-if="apt.dealList && apt.dealList.length">{{
-                formatPrice(apt.dealList[0].deal_amount)
-              }}</span>
-              <span v-else>정보 없음</span>
-            </p>
-          </li>
-        </ul>
+
+      <!-- 상승/하락 Top3 표시 -->
+      <!-- ✅ 검색 결과 및 Top3 통합 스크롤 영역 -->
+      <div class="overflow-y-auto space-y-4" style="max-height: calc(100vh - 280px)">
+        <!-- 상승/하락 Top3 표시 -->
+        <div
+          v-if="showRankingPanel && ranking.length"
+          class="bg-white border rounded p-3 shadow-sm"
+        >
+          <h3 class="text-center font-bold text-green-700 mb-3">📊 시세 변화 TOP 3</h3>
+
+          <!-- 상승 Top 3 -->
+          <div>
+            <h4 class="text-sm font-semibold text-green-600 mb-2">📈 상승률 Top 3</h4>
+            <ul class="space-y-2">
+              <li
+                v-for="apt in topUp"
+                :key="'up-' + apt.aptSeq"
+                class="border p-2 rounded hover:bg-gray-100 cursor-pointer"
+                @click="
+                  moveToApt(
+                    {
+                      apt_seq: apt.aptSeq,
+                      apt_nm: apt.aptName,
+                      road_nm: apt.address,
+                      road_nm_bonbun: '',
+                      latitude: apt.latitude,
+                      longitude: apt.longitude,
+                      dealList: [], // 빈 리스트라도 명시해주면 에러 방지
+                    },
+                    false,
+                  )
+                "
+              >
+                <p class="font-semibold">{{ apt.aptName }}</p>
+                <p class="text-xs text-gray-500">{{ apt.address }}</p>
+                <p class="text-green-600 text-sm">증감률: {{ apt.rateChange.toFixed(2) }}%</p>
+              </li>
+            </ul>
+          </div>
+
+          <hr class="my-3 border-gray-300" />
+
+          <!-- 하락 Top 3 -->
+          <div>
+            <h4 class="text-sm font-semibold text-red-600 mb-2">📉 하락률 Top 3</h4>
+            <ul class="space-y-2">
+              <li
+                v-for="apt in topDown"
+                :key="'down-' + apt.aptSeq"
+                class="border p-2 rounded hover:bg-gray-100 cursor-pointer"
+                @click="
+                  moveToApt(
+                    {
+                      apt_seq: apt.aptSeq,
+                      apt_nm: apt.aptName,
+                      road_nm: apt.address,
+                      road_nm_bonbun: '',
+                      latitude: apt.latitude,
+                      longitude: apt.longitude,
+                    },
+                    false,
+                  )
+                "
+              >
+                <p class="font-semibold">{{ apt.aptName }}</p>
+                <p class="text-xs text-gray-500">{{ apt.address }}</p>
+                <p class="text-red-600 text-sm">증감률: {{ apt.rateChange.toFixed(2) }}%</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 🔍 검색 결과 목록 -->
+        <div>
+          <h3 class="font-bold text-gray-700 mb-2">검색 결과</h3>
+          <ul class="space-y-2">
+            <li
+              v-for="apt in aptList"
+              :key="apt.apt_seq"
+              class="border p-2 rounded hover:bg-gray-100 cursor-pointer"
+              @click="moveToApt(apt)"
+            >
+              <p class="font-semibold">{{ apt.apt_nm }}</p>
+              <p class="text-xs text-gray-500">{{ apt.road_nm }} {{ apt.road_nm_bonbun }}</p>
+              <p class="text-green-600 text-sm">
+                <span v-if="apt.dealList && apt.dealList.length">{{
+                  formatPrice(apt.dealList[0].deal_amount)
+                }}</span>
+                <span v-else>정보 없음</span>
+              </p>
+            </li>
+          </ul>
+        </div>
       </div>
     </aside>
 
@@ -166,7 +241,18 @@
     <!-- 지도 -->
     <div class="flex-1 bg-gray-50 relative">
       <div id="map" class="absolute inset-0 z-0"></div>
+
       <div class="absolute top-4 right-4 z-50 space-x-2">
+        <label class="block text-sm font-medium mb-1">비교 연도 선택</label>
+        <div class="flex space-x-2">
+          <select v-model="fromYear" class="border p-2 rounded">
+            <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
+          </select>
+          <span class="self-center">→</span>
+          <select v-model="toYear" class="border p-2 rounded">
+            <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
+          </select>
+        </div>
         <button @click="selectOverlay('RECTANGLE')" class="px-2 py-1 bg-white rounded">
           사각형
         </button>
@@ -234,7 +320,12 @@ import AIRecommendationModal from '@/components/AIRecommendationModal.vue'
 import ReviewModal from '@/components/ReviewModal.vue'
 import CertifyModal from '@/components/CertifyModal.vue'
 import { useUserStore } from '@/stores/user'
-import rankPins from '@/assets/rankpins.png'
+import up1 from '@/assets/up1.png'
+import up2 from '@/assets/up2.png'
+import up3 from '@/assets/up3.png'
+import down1 from '@/assets/down1.png'
+import down2 from '@/assets/down2.png'
+import down3 from '@/assets/down3.png'
 
 export default {
   name: 'MapPage',
@@ -275,9 +366,24 @@ export default {
 
       ranking: [], // 백에서 받아온 랭킹 리스트
       rankingMarkers: [], // 지도 위에 표시된 랭킹 마커들
+
+      yearOptions: Array.from({ length: 2025 - 2011 + 1 }, (_, i) => 2011 + i),
+      fromYear: 2024,
+      toYear: 2025,
+
+      originalMapLevel: null,
+      originalMapCenter: null,
+
+      showRankingPanel: false, // ← 사각형 검색 여부
     }
   },
   computed: {
+    topUp() {
+      return [...this.ranking].sort((a, b) => b.rateChange - a.rateChange).slice(0, 3)
+    },
+    topDown() {
+      return [...this.ranking].sort((a, b) => a.rateChange - b.rateChange).slice(0, 3)
+    },
     selectedAvgPrice() {
       const match = this.areaList.find((item) => item.area === this.selectedArea)
       return match ? match.avgPrice : null
@@ -288,6 +394,10 @@ export default {
     this.fetchSido()
   },
   methods: {
+    clearMarkers() {
+      this.markers.forEach((marker) => marker.setMap(null))
+      this.markers = []
+    },
     initDrawingManager() {
       const options = {
         map: this.map,
@@ -319,6 +429,8 @@ export default {
       console.log('🧩 받은 추천 아파트 이름들:', aptNames)
 
       try {
+        this.showRankingPanel = false // ✅ AI 추천이므로 Top3 비활성화
+        this.clearRankingMarkers() // ✅ 혹시 이전에 그려진 마커가 있다면 제거
         const aptInfoList = []
 
         for (const name of aptNames) {
@@ -330,11 +442,12 @@ export default {
           aptInfoList.push(...res.data)
         }
 
+        // 👇 기존 aptList 완전히 대체 (섞이지 않게)
         this.aptList = aptInfoList
 
-        await this.fetchDealsForAptList()
+        await this.fetchDealsForAptList(true) // draw = true 설정
         if (this.aptList.length > 0) {
-          this.moveToApt(this.aptList[0])
+          await this.moveToApt(this.aptList[0])
         }
       } catch (error) {
         console.error('추천 결과 이동 중 오류 발생', error)
@@ -347,28 +460,6 @@ export default {
       return matches.map((match) => match[1].trim())
     },
 
-    async fetchDealsForAptList() {
-      const updatedList = await Promise.all(
-        this.aptList.map(async (apt) => {
-          try {
-            const res = await fetch(`/api/apt/${apt.apt_seq}/deals`)
-            const deals = await res.json()
-            return {
-              ...apt,
-              dealList: deals,
-            }
-          } catch (e) {
-            console.error(`거래 정보 불러오기 실패: ${apt.apt_nm}`, e)
-            return {
-              ...apt,
-              dealList: [],
-            }
-          }
-        }),
-      )
-      this.aptList = updatedList
-      if (this.mapReady) this.drawMarkers()
-    },
     handleAISubmit(region) {
       this.showAiModal = false
       console.log('AI 추천 요청 받은 지역:', region)
@@ -402,26 +493,54 @@ export default {
       this.initDrawingManager()
       // 변경: getData()로 완성된 모든 도형을 가져와 RECTANGLE만 골라 fetchRanking
     },
-    onCompleteDrawing() {
+    async onCompleteDrawing() {
       // 1) 완성된 도형 정보 가져와서 처리
       const data = this.drawingManager.getData?.()
       const rects = data?.[kakao.maps.drawing.OverlayType.RECTANGLE] || []
-      if (rects.length > 0) {
-        rects.forEach((r) => {
+      if (!rects.length) {
+        console.log('[onCompleteDrawing] 사각형 없음')
+      } else {
+        // 🔽 여기 넣기
+        this.originalMapLevel = this.map.getLevel()
+        this.originalMapCenter = this.map.getCenter()
+        for (const r of rects) {
           const sw = new kakao.maps.LatLng(r.sPoint.y, r.sPoint.x)
           const ne = new kakao.maps.LatLng(r.ePoint.y, r.ePoint.x)
+          console.log('SW:', sw.getLat(), sw.getLng())
+          console.log('NE:', ne.getLat(), ne.getLng())
           const params = {
             swLat: sw.getLat(),
             swLng: sw.getLng(),
             neLat: ne.getLat(),
             neLng: ne.getLng(),
           }
-          this.fetchRanking(params)
-        })
-      } else {
-        console.log('[onCompleteDrawing] 사각형 없음')
+          // 2) 랭킹 데이터 fetch (await)
+          await this.fetchRanking(params)
+          console.log('랭킹 데이터:', this.ranking)
+        }
       }
+      // 3) RankingDto → aptList 변환
+      this.aptList = this.ranking.map((r) => ({
+        apt_seq: r.aptSeq,
+        apt_nm: r.aptName,
+        road_nm: r.address, // 기존 API 에선 road_nm, road_nm_bonbun 따로지만 생략 가능
+        road_nm_bonbun: '',
+        latitude: r.latitude,
+        longitude: r.longitude,
+      }))
+      console.log('변환된 aptList:', this.aptList)
 
+      // 4) 거래 정보 채워주고, 첫 항목으로 자동 이동
+      this.fetchDealsForAptList(false)
+      console.log('거래 정보 채워진 aptList:', this.aptList)
+      if (this.aptList.length) {
+        this.moveToApt(this.aptList[0], true)
+        // ✅ 복원
+        if (this.originalMapCenter && this.originalMapLevel !== null) {
+          this.map.setCenter(this.originalMapCenter)
+          this.map.setLevel(this.originalMapLevel)
+        }
+      }
       // 2) 매니저 클리어 + 리스너 해제
       this.drawingManager.clear() // 그린 도형만 삭제
       kakao.maps.event.removeListener(
@@ -435,6 +554,7 @@ export default {
       this.$nextTick(() => {
         this.initDrawingManager()
       })
+      this.showRankingPanel = true
     },
     drawMarkers() {
       if (!this.map) return
@@ -462,28 +582,52 @@ export default {
         this.yearlyPrices = []
       }
     },
-    async moveToApt(apt) {
-      if (!apt.latitude || !apt.longitude) return
-      const latLng = new kakao.maps.LatLng(parseFloat(apt.latitude), parseFloat(apt.longitude))
-      this.map.setCenter(latLng)
-      this.map.setLevel(2)
-      this.selectedApt = apt
+    async moveToApt(apt, keepView = false) {
+      // Top3 또는 검색결과 어떤 형태든 통일
+      const normalizedApt = {
+        apt_seq: apt.apt_seq || apt.aptSeq,
+        apt_nm: apt.apt_nm || apt.aptName,
+        road_nm: apt.road_nm || apt.address,
+        road_nm_bonbun: apt.road_nm_bonbun || '',
+        latitude: apt.latitude,
+        longitude: apt.longitude,
+      }
+
+      if (!normalizedApt.latitude || !normalizedApt.longitude) return
+
+      const latLng = new kakao.maps.LatLng(
+        parseFloat(normalizedApt.latitude),
+        parseFloat(normalizedApt.longitude),
+      )
+      if (!keepView) {
+        this.map.setCenter(latLng)
+        this.map.setLevel(2)
+      }
+
+      this.selectedApt = normalizedApt
       try {
-        const res = await axios.get(`/apt/${apt.apt_seq}/info`)
+        const res = await axios.get(`/apt/${normalizedApt.apt_seq}/info`)
         this.aptDetailInfo = res.data
       } catch (err) {
         console.error('아파트 정보 조회 실패:', err)
         this.aptDetailInfo = null
       }
       try {
-        const res = await axios.get(`/reviews/${apt.apt_seq}`)
+        const res = await axios.get(`/reviews/${normalizedApt.apt_seq}`)
         this.reviews = res.data
       } catch (err) {
-        console.error('리뷰 불러오기 실패:', err)
-        this.reviews = []
+        if (err.response && err.response.status === 404) {
+          // 리뷰 없음 → 에러 아님
+          this.reviews = []
+        } else {
+          // 진짜 에러만 콘솔 출력
+          // console.error('리뷰 불러오기 실패:', err)
+          this.reviews = []
+        }
       }
+
       try {
-        const res = await axios.get(`/apt/${apt.apt_seq}/avg-prices`)
+        const res = await axios.get(`/apt/${normalizedApt.apt_seq}/avg-prices`)
         this.areaList = res.data
         if (res.data.length > 0) {
           this.selectedArea = res.data[0].area
@@ -537,35 +681,41 @@ export default {
       })
     },
     async searchByRegion() {
+      this.showRankingPanel = false
+      this.clearRankingMarkers() // ✅ 추가
       if (!this.dong) return
       try {
         const response = await fetch(`/api/apt/search?dongCode=${this.dong}`)
         const data = await response.json()
         this.aptList = data
-        await this.fetchDealsForAptList()
+        await this.fetchDealsForAptList(true)
         if (this.aptList.length > 0) this.moveToApt(this.aptList[0])
       } catch (error) {
         console.error('지역 검색 실패:', error)
       }
     },
     async searchByAptName() {
+      this.showRankingPanel = false
+      this.clearRankingMarkers() // ✅ 추가
       if (!this.aptName.trim()) return
       try {
         const response = await fetch(`/api/apt/search?aptName=${this.aptName}`)
         const data = await response.json()
         this.aptList = data
-        await this.fetchDealsForAptList()
+        await this.fetchDealsForAptList(true)
         if (this.aptList.length > 0) this.moveToApt(this.aptList[0])
       } catch (error) {
         console.error('아파트명 검색 실패:', error)
       }
     },
-    async fetchDealsForAptList() {
+    async fetchDealsForAptList(draw = false) {
+      console.log('fetchDealsForAptList 시작, aptList:', this.aptList)
       const updatedList = await Promise.all(
         this.aptList.map(async (apt) => {
           try {
             const res = await fetch(`/api/apt/${apt.apt_seq}/deals`)
             const deals = await res.json()
+            console.log(`  ← ${apt.apt_seq} 거래 조회 완료, count:`, deals.length)
             return { ...apt, dealList: deals }
           } catch (e) {
             console.error(`거래 정보 실패: ${apt.apt_nm}`, e)
@@ -574,11 +724,15 @@ export default {
         }),
       )
       this.aptList = updatedList
-      if (this.mapReady) {
+      console.log('fetchDealsForAptList 완료, updated aptList:', this.aptList)
+      // ✅ draw false면 마커 생략
+      if (!draw) return
+
+      if (this.mapReady || this.ranking.length <= 0) {
         this.drawMarkers()
       } else {
         const check = setInterval(() => {
-          if (this.mapReady) {
+          if (this.mapReady || this.ranking.length <= 0) {
             this.drawMarkers()
             clearInterval(check)
           }
@@ -614,6 +768,7 @@ export default {
       }
     },
     selectOverlay(type) {
+      this.clearRankingMarkers()
       // 사각형 모드 진입
       this.drawingManager.cancel()
       this.drawingManager.select(kakao.maps.drawing.OverlayType[type])
@@ -622,8 +777,19 @@ export default {
     /** 사각형 경계(swLat,swLng,neLat,neLng) 기반 랭킹 API 호출 */
     async fetchRanking({ swLat, swLng, neLat, neLng }) {
       try {
+        // 유저가 선택한 연도(예시: data()에 바인딩된 fromYear/toYear)
+        const fromYear = this.fromYear
+        const toYear = this.toYear
+
         const res = await axios.get('/apt/ranking', {
-          params: { swLat, swLng, neLat, neLng },
+          params: {
+            swLat,
+            swLng,
+            neLat,
+            neLng,
+            fromYear,
+            toYear,
+          },
           withCredentials: true,
         })
         this.ranking = res.data
@@ -647,57 +813,58 @@ export default {
       const topUp = [...this.ranking].sort((a, b) => b.rateChange - a.rateChange).slice(0, 3)
       const topDown = [...this.ranking].sort((a, b) => a.rateChange - b.rateChange).slice(0, 3)
 
-      const SPRITE_URL = rankPins
-      const ICON_SIZE = new kakao.maps.Size(64, 64)
-      const SPRITE_SIZE = new kakao.maps.Size(192, 128)
+      console.log(
+        '상위 3개:',
+        topUp.map((x) => x.aptSeq),
+      )
+      console.log(
+        '하위 3개:',
+        topDown.map((x) => x.aptSeq),
+      )
+
+      const upIcons = [up1, up2, up3]
+      const downIcons = [down1, down2, down3]
 
       this.ranking.forEach((item) => {
         const lat = parseFloat(item.latitude)
         const lng = parseFloat(item.longitude)
         if (!lat || !lng) return
 
-        // 기본 origin
-        let spriteOrigin = new kakao.maps.Point(0, 0)
-        let labelHtml = `#`
+        // 실제 필드 이름으로 비교!
+        const upIdx = topUp.findIndex((x) => String(x.aptSeq) === String(item.aptSeq))
+        const dnIdx =
+          upIdx === -1 ? topDown.findIndex((x) => String(x.aptSeq) === String(item.aptSeq)) : -1
 
-        const upIdx = topUp.findIndex((x) => x.apt_seq === item.apt_seq)
-        if (upIdx !== -1) {
-          spriteOrigin = new kakao.maps.Point(64 * upIdx, 0)
-          labelHtml = `▲${upIdx + 1}`
-        }
-
-        const dnIdx = topDown.findIndex((x) => x.apt_seq === item.apt_seq)
-        if (dnIdx !== -1) {
-          spriteOrigin = new kakao.maps.Point(64 * dnIdx, 64)
-          labelHtml = `▼${dnIdx + 1}`
-        }
-
-        const markerImage = new kakao.maps.MarkerImage(SPRITE_URL, ICON_SIZE, {
-          spriteSize: SPRITE_SIZE,
-          spriteOrigin,
-          offset: new kakao.maps.Point(ICON_SIZE.width/2, ICON_SIZE.height),
-        })
-
-        // 레이블 옵션을 생성자에 포함
-        const marker = new kakao.maps.Marker({
+        const markerOptions = {
           position: new kakao.maps.LatLng(lat, lng),
           map: this.map,
-          image: markerImage,
-          label: {
-            content: `<div style="font-weight:bold; color:#333">${labelHtml}</div>`,
-            anchor: new kakao.maps.Point(12, 44),
-          },
-        })
+        }
+
+        if (upIdx !== -1) {
+          markerOptions.image = new kakao.maps.MarkerImage(
+            upIcons[upIdx],
+            new kakao.maps.Size(48, 48),
+            { offset: new kakao.maps.Point(24, 48) },
+          )
+        } else if (dnIdx !== -1) {
+          markerOptions.image = new kakao.maps.MarkerImage(
+            downIcons[dnIdx],
+            new kakao.maps.Size(48, 48),
+            { offset: new kakao.maps.Point(24, 48) },
+          )
+        }
+        // else: 기본 마커
+
+        const marker = new kakao.maps.Marker(markerOptions)
 
         const iw = new kakao.maps.InfoWindow({
           content: `
         <div style="padding:6px;font-size:12px;">
           <strong>${item.aptName}</strong><br/>
-          증감률: ${item.rateChange}%
+          증감률: ${item.rateChange.toFixed(2)}%
         </div>`,
         })
         kakao.maps.event.addListener(marker, 'click', () => iw.open(this.map, marker))
-
         this.rankingMarkers.push(marker)
       })
     },

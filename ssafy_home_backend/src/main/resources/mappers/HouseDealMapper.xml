@@ -78,5 +78,12 @@
       AND deal_year = #{year}
       AND deal_month= #{month}
   </select>
+  
+  <select id="selectYearlyAvg" resultType="java.lang.Double">
+  SELECT AVG(CAST(deal_amount AS UNSIGNED))
+    FROM housedeals
+   WHERE apt_seq = #{aptSeq}
+     AND deal_year = #{year}
+</select>
 
 </mapper>

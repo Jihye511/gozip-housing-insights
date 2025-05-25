@@ -25,4 +25,8 @@ public interface HouseDealRepository {
             @Param("year")   int year,
             @Param("month")  int month
         );
+    Double selectYearlyAvg(
+    	    @Param("aptSeq") String aptSeq,
+    	    @Param("year")   int    year
+    	  );
 }

@@ -20,26 +20,33 @@ public class RankingService {
     private final HouseInfoRepository infoRepo;
     private final HouseDealRepository dealRepo;
 
-    public List<RankingDto> computeRectangleRanking(double swLat, double swLng, double neLat, double neLng) {
-        // 1) 범위 내 아파트 목록
-        List<HouseInfoDto> apartments = infoRepo.selectByBounds(swLat, swLng, neLat, neLng);
+    /**
+     * swLat, swLng, neLat, neLng: 지도 바운드
+     * fromYear, toYear: 비교할 시작 연도와 종료 연도
+     */
+    public List<RankingDto> computeRectangleRanking(
+            double swLat, double swLng,
+            double neLat, double neLng,
+            int fromYear, int toYear) {
 
-        // 2) 월별 증감률 계산
-        YearMonth now  = YearMonth.now();
-        YearMonth prev = now.minusMonths(1);
+        // 1) 범위 내 아파트
+        List<HouseInfoDto> apartments =
+            infoRepo.selectByBounds(swLat, swLng, neLat, neLng);
 
         return apartments.stream()
+            // 2) 각 아파트에 대해 연평균을 가져와 증감률 계산
             .map(apt -> {
-                Double thisAvg = dealRepo.selectMonthlyAvg(
-                    apt.getApt_seq(), now.getYear(), now.getMonthValue());
-                Double prevAvg = dealRepo.selectMonthlyAvg(
-                    apt.getApt_seq(), prev.getYear(), prev.getMonthValue());
+                Double avgFrom = dealRepo.selectYearlyAvg(apt.getApt_seq(), fromYear);
+                Double avgTo   = dealRepo.selectYearlyAvg(apt.getApt_seq(), toYear);
 
-                double rateChange = 0;
-                if (thisAvg != null && prevAvg != null && prevAvg > 0) {
-                    rateChange = (thisAvg - prevAvg) / prevAvg * 100;
+                // 데이터 없거나 0 이면 랭킹에서 제외
+                if (avgFrom == null || avgTo == null || avgFrom <= 0) {
+                    return null;
                 }
 
+                double rateChange = (avgTo - avgFrom) / avgFrom * 100.0;
+
+                // 기존대로 inline 주소 조합
                 String address = apt.getRoad_nm()
                     + (apt.getRoad_nm_bonbun() != null ? " " + apt.getRoad_nm_bonbun() : "")
                     + (apt.getRoad_nm_bubun() != null && !"0".equals(apt.getRoad_nm_bubun())
@@ -54,7 +61,10 @@ public class RankingService {
                     apt.getLongitude()
                 );
             })
-            .sorted(Comparator.comparing(RankingDto::getRateChange).reversed())
+            // 3) null 제거(filter)
+            .filter(dto -> dto != null)
+            // 4) 증감률 내림차순 정렬
+            .sorted(Comparator.comparingDouble(RankingDto::getRateChange).reversed())
             .collect(Collectors.toList());
     }
 }
