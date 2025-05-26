@@ -3,7 +3,16 @@
 @tailwind utilities;
 @font-face {
   font-family: 'BMHannaPro';
-  src: url('@/assets/BMHANNAPro.ttf') format('truetype');
+  src: url('@/assets/BMHANNAAir_ttf.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+}
+
+/* Tailwind의 기본(preflight) html 폰트를 덮어쓰기 */
+@layer base {
+  html {
+    font-family: 'BMHannaPro', ui-sans-serif, system-ui, -apple-system,
+                 BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+                 Arial, 'Noto Sans', sans-serif;
+  }
 }
