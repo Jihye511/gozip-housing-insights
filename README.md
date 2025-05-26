@@ -5,4 +5,4 @@ https://docs.google.com/spreadsheets/d/1zrRtcDrmhplDt20apE999OgHi7lIRaEqgyQfeq4j
 
 
 ### ERD
-![erd.png](./erd.png)
+![image.png](./image.png)
