@@ -84,7 +84,7 @@ export default {
     }
 
     const onNaverLogin = () => {
-      window.location.href = 'http://localhost:8080/oauth2/authorization/naver'
+      window.location.href = 'http://192.168.205.52:8080/oauth2/authorization/naver'
     }
 
     return { username, password, onSubmit, onNaverLogin }

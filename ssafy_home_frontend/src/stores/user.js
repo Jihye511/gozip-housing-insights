@@ -10,7 +10,7 @@ export const useUserStore = defineStore('user', {
   actions: {
     async fetchUser() {
       try {
-        const res = await fetch('http://localhost:8080/api/user/mypage', {
+        const res = await fetch('http://192.168.205.52:8080/api/user/mypage', {
           credentials: 'include',
         });
 
@@ -30,7 +30,7 @@ export const useUserStore = defineStore('user', {
     },
 
     logout() {
-      fetch('http://localhost:8080/api/user/logout', {
+      fetch('http://192.168.205.52:8080/api/user/logout', {
         method: 'POST',
         credentials: 'include',
       })

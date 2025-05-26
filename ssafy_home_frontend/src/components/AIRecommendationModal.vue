@@ -259,7 +259,7 @@ export default {
       this.currentRequestId = requestId
 
       try {
-        const response = await axios.post('http://localhost:8080/api/recommend', payload)
+        const response = await axios.post('http://192.168.205.52:8080/api/recommend', payload)
 
         await new Promise((resolve) => setTimeout(resolve, 1500)) // ✅ 여기 넣기
 

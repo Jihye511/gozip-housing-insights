@@ -68,7 +68,8 @@ public class SecurityConfig {
                 @Override
                 public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Arrays.asList("http://localhost:5173","http://localhost:8080"));
+//                    config.setAllowedOriginPatterns(Collections.singletonList("*")); // 또는 실제 IP들 명시
+                    config.setAllowedOrigins(Arrays.asList("http://localhost:5173","http://192.168.205.52:5173"));
                     config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(Arrays.asList("Content-Type","Authorization","X-Requested-With"));
