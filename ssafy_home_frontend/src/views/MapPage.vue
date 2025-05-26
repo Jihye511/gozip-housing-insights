@@ -8,72 +8,63 @@
       </router-link>
 
       <!-- 지역 검색 -->
-<section class="mb-6">
-  <h3 class="text-lg font-semibold text-gray-700 mb-3">📍 지역 검색</h3>
-  <div class="space-y-3">
-    <select
-      v-model="sido"
-      @change="fetchGugun"
-      class="w-full border-gray-200 rounded-lg p-3 shadow-sm focus:ring-2 focus:ring-green-500"
-    >
-      <option value="">시 선택</option>
-      <option
-        v-for="option in sidoList"
-        :key="option.code"
-        :value="option.code"
-      >
-        {{ option.name }}
-      </option>
-    </select>
+      <section class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-700 mb-3">📍 지역 검색</h3>
+        <div class="space-y-3">
+          <select
+            v-model="sido"
+            @change="fetchGugun"
+            class="w-full border-gray-200 rounded-lg p-3 shadow-sm focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">시 선택</option>
+            <option v-for="option in sidoList" :key="option.code" :value="option.code">
+              {{ option.name }}
+            </option>
+          </select>
 
-    <select
-      v-model="gugun"
-      @change="fetchDong"
-      class="w-full border-gray-200 rounded-lg p-3 shadow-sm focus:ring-2 focus:ring-green-500"
-    >
-      <option value="">구 선택</option>
-      <option
-        v-for="option in gugunList"
-        :key="option.code"
-        :value="option.code"
-      >
-        {{ option.name }}
-      </option>
-    </select>
+          <select
+            v-model="gugun"
+            @change="fetchDong"
+            class="w-full border-gray-200 rounded-lg p-3 shadow-sm focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">구 선택</option>
+            <option v-for="option in gugunList" :key="option.code" :value="option.code">
+              {{ option.name }}
+            </option>
+          </select>
 
-    <select
-      v-model="dong"
-      class="w-full border-gray-200 rounded-lg p-3 shadow-sm focus:ring-2 focus:ring-green-500"
-    >
-      <option value="">동 선택</option>
-      <option
-        v-for="option in dongList"
-        :key="option.code"
-        :value="option.code"
-      >
-        {{ option.name }}
-      </option>
-    </select>
+          <select
+            v-model="dong"
+            class="w-full border-gray-200 rounded-lg p-3 shadow-sm focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">동 선택</option>
+            <option v-for="option in dongList" :key="option.code" :value="option.code">
+              {{ option.name }}
+            </option>
+          </select>
 
-    <button
-      @click="searchByRegion"
-      class="w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg py-3 transition"
-    >
-      검색
-    </button>
-  </div>
-</section>
+          <button
+            @click="searchByRegion"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg py-3 transition"
+          >
+            검색
+          </button>
+        </div>
+      </section>
 
       <!-- 아파트명 검색 -->
       <div>
         <label class="block text-sm font-medium mb-1">아파트로 검색</label>
-        <div class="flex items-center gap-2">
+        <div class="space-y-2">
           <input
-            class="flex-1 border p-2 rounded"
+            class="w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-2 focus:ring-green-500"
             placeholder="아파트명을 입력하세요"
             v-model="aptName"
           />
-          <button class="bg-green-600 text-white px-3 py-2 rounded" @click="searchByAptName">
+          <button
+            @click="searchByAptName"
+            class="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2.5 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+          >
             검색
           </button>
         </div>
@@ -178,195 +169,160 @@
     </aside>
 
     <!-- 상세 정보 패널 -->
-<section
-  v-if="aptDetailInfo"
-  class="w-80 bg-white shadow-lg rounded-xl p-6 border-r overflow-y-auto"
->
-  <h3 class="text-2xl font-bold text-gray-800 mb-3">
-    {{ aptDetailInfo.aptName }}
-  </h3>
-  <p class="text-sm text-gray-500 mb-6">
-    {{ aptDetailInfo.address }}
-  </p>
-
-  <div class="space-y-6">
-    <!-- 가격 및 기본 정보 -->
-    <div class="bg-gray-50 rounded-lg p-4">
-      <h4 class="text-gray-700 font-semibold mb-2">가격 및 정보</h4>
-      <p class="text-gray-600">
-        <span v-if="selectedApt.dealList?.length">
-          {{ formatPrice(selectedApt.dealList[0].deal_amount) }} •
-        </span>
-        {{ selectedApt.area || '84m²' }} • 아파트
+    <section
+      v-if="aptDetailInfo"
+      class="w-80 bg-white shadow-lg rounded-xl p-6 border-r overflow-y-auto"
+    >
+      <h3 class="text-2xl font-bold text-gray-800 mb-3">
+        {{ aptDetailInfo.aptName }}
+      </h3>
+      <p class="text-sm text-gray-500 mb-6">
+        {{ aptDetailInfo.address }}
       </p>
-    </div>
 
-    <!-- 평수 선택 -->
-    <div v-if="areaList.length">
-      <label class="block text-gray-700 font-medium mb-2">
-        평수 선택
-      </label>
-      <select
-        v-model="selectedArea"
-        @change="fetchYearlyPrices"
-        class="w-full border-gray-200 rounded-lg p-3 shadow-sm focus:ring-2 focus:ring-green-500"
-      >
-        <option
-          v-for="item in areaList"
-          :key="item.area"
-          :value="item.area"
-        >
-          {{ item.area }}㎡
-        </option>
-      </select>
-    </div>
-
-    <!-- 선택 평수 평균가 -->
-    <div v-if="selectedAvgPrice" class="text-gray-700">
-      <p class="text-sm">
-        선택한 평수의 평균 매매가:
-        <span class="font-semibold text-green-600">
-          {{ formatPrice(selectedAvgPrice.toString()) }}
-        </span>
-      </p>
-    </div>
-
-    <!-- 년도별 평균 매매가 -->
-    <div v-if="yearlyPrices.length">
-      <h4 class="text-gray-700 font-semibold mb-2">
-        년도별 평균 매매가
-      </h4>
-      <ul class="space-y-1 text-sm text-gray-600">
-        <li v-for="(item, idx) in yearlyPrices" :key="idx">
-          {{ item.year }}년 — {{ formatPrice(item.avgPrice.toString()) }}
-        </li>
-      </ul>
-    </div>
-
-    <!-- 시세 그래프 -->
-    <div>
-      <h4 class="text-gray-700 font-semibold mb-2">시세 그래프</h4>
-      <div class="bg-gray-100 rounded-lg p-4">
-        <AptPriceChart
-          v-if="yearlyPrices.length"
-          :yearlyPrices="yearlyPrices"
-          :key="selectedApt?.apt_seq + selectedArea"
-        />
-        <p v-else class="text-center text-gray-400 py-8">
-          시세 데이터가 없습니다.
-        </p>
-      </div>
-    </div>
-
-    <!-- 거주자 리뷰 -->
-    <div>
-      <h4 class="text-gray-700 font-semibold mb-2">거주자 리뷰</h4>
-      <button
-        @click="checkCertification()"
-        class="mb-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg px-4 py-2 transition"
-      >
-        리뷰 작성
-      </button>
-      <ul class="space-y-4">
-        <li
-          v-for="review in reviews"
-          :key="review.review_id"
-          class="border-b pb-4"
-        >
-          <p class="text-gray-800 text-sm mb-2">
-            “{{ review.content }}” — {{ review.userName }} |
-            <span class="font-semibold">{{ review.score }}점</span>
+      <div class="space-y-6">
+        <!-- 가격 및 기본 정보 -->
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h4 class="text-gray-700 font-semibold mb-2">가격 및 정보</h4>
+          <p class="text-gray-600">
+            <span v-if="selectedApt.dealList?.length">
+              {{ formatPrice(selectedApt.dealList[0].deal_amount) }} •
+            </span>
+            {{ selectedApt.area || '84m²' }} • 아파트
           </p>
-          <img
-            v-if="review.image_file"
-            :src="review.image_file"
-            alt="리뷰 이미지"
-            class="w-36 h-36 object-cover rounded-lg mb-2"
-          />
-          <button
-            v-if="review.user_id === userStore.userId"
-            @click="deleteReview(review.review_id)"
-            class="text-red-500 text-xs hover:underline"
-          >
-            삭제
-          </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-</section>
+        </div>
 
+        <!-- 평수 선택 -->
+        <div v-if="areaList.length">
+          <label class="block text-gray-700 font-medium mb-2"> 평수 선택 </label>
+          <select
+            v-model="selectedArea"
+            @change="fetchYearlyPrices"
+            class="w-full border-gray-200 rounded-lg p-3 shadow-sm focus:ring-2 focus:ring-green-500"
+          >
+            <option v-for="item in areaList" :key="item.area" :value="item.area">
+              {{ item.area }}㎡
+            </option>
+          </select>
+        </div>
+
+        <!-- 선택 평수 평균가 -->
+        <div v-if="selectedAvgPrice" class="text-gray-700">
+          <p class="text-sm">
+            선택한 평수의 평균 매매가:
+            <span class="font-semibold text-green-600">
+              {{ formatPrice(selectedAvgPrice.toString()) }}
+            </span>
+          </p>
+        </div>
+
+        <!-- 년도별 평균 매매가 -->
+        <div v-if="yearlyPrices.length">
+          <h4 class="text-gray-700 font-semibold mb-2">년도별 평균 매매가</h4>
+          <ul class="space-y-1 text-sm text-gray-600">
+            <li v-for="(item, idx) in yearlyPrices" :key="idx">
+              {{ item.year }}년 — {{ formatPrice(item.avgPrice.toString()) }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- 시세 그래프 -->
+        <div>
+          <h4 class="text-gray-700 font-semibold mb-2">시세 그래프</h4>
+          <div class="bg-gray-100 rounded-lg p-4">
+            <AptPriceChart
+              v-if="yearlyPrices.length"
+              :yearlyPrices="yearlyPrices"
+              :key="selectedApt?.apt_seq + selectedArea"
+            />
+            <p v-else class="text-center text-gray-400 py-8">시세 데이터가 없습니다.</p>
+          </div>
+        </div>
+
+        <!-- 거주자 리뷰 -->
+        <div>
+          <h4 class="text-gray-700 font-semibold mb-2">거주자 리뷰</h4>
+          <button
+            @click="checkCertification()"
+            class="mb-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg px-4 py-2 transition"
+          >
+            리뷰 작성
+          </button>
+          <ul class="space-y-4">
+            <li v-for="review in reviews" :key="review.review_id" class="border-b pb-4">
+              <p class="text-gray-800 text-sm mb-2">
+                “{{ review.content }}” — {{ review.userName }} |
+                <span class="font-semibold">{{ review.score }}점</span>
+              </p>
+              <img
+                v-if="review.image_file"
+                :src="review.image_file"
+                alt="리뷰 이미지"
+                class="w-36 h-36 object-cover rounded-lg mb-2"
+              />
+              <button
+                v-if="review.user_id === userStore.userId"
+                @click="deleteReview(review.review_id)"
+                class="text-red-500 text-xs hover:underline"
+              >
+                삭제
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
     <!-- 지도 -->
-<div class="flex-1 bg-gray-50 relative">
-  <div id="map" class="absolute inset-0 z-0"></div>
+    <div class="flex-1 bg-gray-50 relative">
+      <div id="map" class="absolute inset-0 z-0"></div>
 
-  <div
-    class="absolute top-6 right-6 z-50
-           bg-white bg-opacity-90 backdrop-blur-md
-           rounded-xl p-4 shadow-lg w-64"
-  >
-    <h4 class="text-sm font-semibold text-gray-700 mb-3">비교 연도 선택</h4>
+      <div
+        class="absolute top-6 right-6 z-50 bg-white bg-opacity-90 backdrop-blur-md rounded-xl p-4 shadow-lg w-64"
+      >
+        <h4 class="text-sm font-semibold text-gray-700 mb-3">비교 연도 선택</h4>
 
-    <div class="flex items-center space-x-2 mb-4">
-      <select
-        v-model="fromYear"
-        class="flex-1 border-gray-200 rounded-lg p-2 shadow-sm focus:ring-2 focus:ring-green-500"
-      >
-        <option v-for="y in yearOptions" :key="y" :value="y">
-          {{ y }}년
-        </option>
-      </select>
-      <span class="text-gray-500 font-semibold">→</span>
-      <select
-        v-model="toYear"
-        class="flex-1 border-gray-200 rounded-lg p-2 shadow-sm focus:ring-2 focus:ring-green-500"
-      >
-        <option v-for="y in yearOptions" :key="y" :value="y">
-          {{ y }}년
-        </option>
-      </select>
+        <div class="flex items-center space-x-2 mb-4">
+          <select
+            v-model="fromYear"
+            class="flex-1 border-gray-200 rounded-lg p-2 shadow-sm focus:ring-2 focus:ring-green-500"
+          >
+            <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
+          </select>
+          <span class="text-gray-500 font-semibold">→</span>
+          <select
+            v-model="toYear"
+            class="flex-1 border-gray-200 rounded-lg p-2 shadow-sm focus:ring-2 focus:ring-green-500"
+          >
+            <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
+          </select>
+        </div>
+
+        <div class="flex space-x-2">
+          <button
+            @click="selectOverlay('RECTANGLE')"
+            class="flex-1 border-2 border-green-500 text-green-500 rounded-lg py-2 font-medium hover:bg-green-50 transition"
+          >
+            범위 탐색
+          </button>
+          <button
+            @click="onCompleteDrawing"
+            class="flex-1 bg-green-600 text-white rounded-lg py-2 font-medium hover:bg-green-700 transition"
+          >
+            완료
+          </button>
+        </div>
+      </div>
     </div>
-
-    <div class="flex space-x-2">
-      <button
-        @click="selectOverlay('RECTANGLE')"
-        class="flex-1 border-2 border-green-500 text-green-500
-               rounded-lg py-2 font-medium
-               hover:bg-green-50 transition"
-      >
-        범위 탐색
-      </button>
-      <button
-        @click="onCompleteDrawing"
-        class="flex-1 bg-green-600 text-white
-               rounded-lg py-2 font-medium
-               hover:bg-green-700 transition"
-      >
-        완료
-      </button>
-    </div>
-  </div>
-</div>
     <!--  오른쪽 하단 고정 버튼 -->
-<div>
-  <button
-    @click="showModal = true"
-    class="fixed bottom-8 right-8
-           bg-gradient-to-br from-green-400 to-green-600
-           hover:from-green-500 hover:to-green-700
-           text-white text-2xl
-           p-5
-           rounded-full
-           shadow-2xl
-           transform transition duration-300
-           hover:scale-110
-           focus:outline-none focus:ring-4 focus:ring-green-300
-           animate-pulse"
-  >
-    💡 AI 추천
-  </button>
-</div>
+    <div>
+      <button
+        @click="showModal = true"
+        class="fixed bottom-8 right-8 bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white text-2xl p-5 rounded-full shadow-2xl transform transition duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-green-300 animate-pulse"
+      >
+        💡 AI 추천
+      </button>
+    </div>
 
     <!-- AI 추천 결과 영역 -->
     <div
@@ -401,7 +357,8 @@
     <!-- 인증 모달 -->
     <CertifyModal
       v-if="showCertifyModal"
-      :aptSeq="selectedApt?.apt_seq.toString()"
+      :aptSeq="String(selectedApt?.apt_seq)"
+      :aptName="selectedApt?.apt_nm"
       @close="showCertifyModal = false"
     />
   </div>

@@ -9,11 +9,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // 스프링 서버 주소
+        // target: 'http://localhost:8080', // 스프링 서버 주소
+        // target: 'http://211.231.82.58:8080',
+        target: 'http://192.168.205.52:8080',
+
         changeOrigin: true
       },
       '/uploads': {
-        target: 'http://localhost:8080',
+        target: 'http://192.168.205.52:8080',
         changeOrigin: true,
       },
     }

@@ -4,7 +4,7 @@
       <button class="absolute top-2 right-3 text-gray-500" @click="$emit('close')">✕</button>
       <h2 class="text-lg font-semibold mb-4">실거주 인증 요청</h2>
 
-      <p class="mb-2">아파트 ID: <strong>{{ aptSeq }}</strong></p>
+      <p class="mb-2">아파트 이름: <strong>{{ aptName }}</strong></p>
 
       <input
         type="file"
@@ -33,7 +33,8 @@ import { useRouter } from 'vue-router'
 export default {
   name: 'CertifyModal',
   props: {
-    aptSeq: { type: String, required: true }
+    aptSeq: { type: String, required: true },
+    aptName: { type: String, required: true },
   },
   setup(props, { emit }) {
     const file = ref(null)
