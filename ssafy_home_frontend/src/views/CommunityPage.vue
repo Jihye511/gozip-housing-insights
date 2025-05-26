@@ -70,6 +70,7 @@
         <!-- 제목 -->
         <h3 class="text-xl font-bold mb-2">{{ selectedPost?.title }}</h3>
 
+
         <!-- 작성자 · 날짜 · 카테고리 · 댓글수 -->
         <p class="text-sm text-gray-500 mb-1">
           {{ selectedPost?.username }} ·
@@ -77,7 +78,19 @@
           {{ selectedPost?.category }} ·
           💬 {{ comments.length }}
         </p>
-
+         <div class="border-t pt-4">
+          <p class="text-gray-800 mb-4 whitespace-pre-line">
+            {{ selectedPost?.content }}
+          </p>
+        </div>
+        
+        <button
+          v-if="String(selectedPost?.user_id) === String(currentUserId)"
+          @click="openEditModal"
+          class="absolute top-12 right-16 text-sm text-blue-500 hover:underline"
+        >
+          수정
+        </button>
         <button
           v-if="String(selectedPost?.user_id) === String(currentUserId)"
           @click.stop="deletePost(selectedPost.board_id)"
@@ -103,6 +116,37 @@
         </div>
       </div>
     </div>
+    <!-- 수정 모달 -->
+    <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-full max-w-lg rounded-lg p-6 relative">
+        <button @click="showEditModal = false" class="absolute top-2 right-2 text-gray-500">✕</button>
+        <h3 class="text-xl font-bold mb-4">게시글 수정</h3>
+        <form @submit.prevent="submitEditPost" class="space-y-4">
+          <div>
+            <label class="block mb-1 text-sm font-medium">카테고리</label>
+            <select v-model="editCategory" class="w-full border p-2 rounded">
+              <option>정보공유</option>
+              <option>질문</option>
+              <option>시장동향</option>
+              <option>정책토론</option>
+            </select>
+          </div>
+          <div>
+            <label class="block mb-1 text-sm font-medium">제목</label>
+            <input v-model="editTitle" type="text" class="w-full border p-2 rounded" />
+          </div>
+          <div>
+            <label class="block mb-1 text-sm font-medium">내용</label>
+            <textarea v-model="editContent" class="w-full border p-2 rounded h-32"></textarea>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button type="button" @click="showEditModal = false" class="px-4 py-2 border rounded">취소</button>
+            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded">수정하기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
 
     <!-- 글쓰기 모달 -->
     <div v-if="showWriteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -157,6 +201,10 @@ export default {
       comments: [],
       commentContent: '',
       searchKeyword: '',
+      showEditModal: false,
+        editTitle: '',
+        editContent: '',
+        editCategory: '',
     };
   },
   computed: {
@@ -182,6 +230,31 @@ export default {
     await this.fetchPosts();
   },
   methods: {
+    // 수정 버튼 클릭 시 기존 값 세팅
+    openEditModal() {
+      this.editTitle = this.selectedPost.title;
+      this.editContent = this.selectedPost.content;
+      this.editCategory = this.selectedPost.category;
+      this.showEditModal = true;
+    },
+
+    // 수정 요청
+    async submitEditPost() {
+      try {
+        await axios.put(`/community/${this.selectedPost.board_id}`, {
+          title: this.editTitle,
+          content: this.editContent,
+          category: this.editCategory,
+        });
+        this.showEditModal = false;
+        this.showDetailModal = false;
+        await this.fetchPosts(); // 목록 최신화
+        alert('게시글이 수정되었습니다.');
+      } catch (e) {
+        console.error('게시글 수정 실패', e);
+        alert('수정에 실패했습니다.');
+      }
+    },
     formatDate(datetimeStr) {
       if (!datetimeStr) return '';
       return datetimeStr.replace('T', ' ').slice(0, 16); // "2023-05-25 14:22"
