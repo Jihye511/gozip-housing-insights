@@ -44,7 +44,7 @@
             <p class="text-sm text-gray-600">{{ post.content.slice(0, 60) }}...</p>
             <div class="flex justify-between text-xs text-gray-500 mt-2">
               <span>
-                {{ post.user_id }} · {{ formatDate(post.created_at) }} · 💬 {{ post.comment_count }}
+                {{ post.username }} · {{ formatDate(post.created_at) }} · 💬 {{ post.comment_count }}
               </span>
               <span class="bg-gray-100 px-2 py-1 rounded-full text-xs text-gray-700">{{ post.category }}</span>
             </div>
@@ -72,7 +72,7 @@
 
         <!-- 작성자 · 날짜 · 카테고리 · 댓글수 -->
         <p class="text-sm text-gray-500 mb-1">
-          {{ selectedPost?.user_id }} ·
+          {{ selectedPost?.username }} ·
           {{ formatDate(selectedPost?.created_at) }} ·
           {{ selectedPost?.category }} ·
           💬 {{ comments.length }}
@@ -90,7 +90,7 @@
           <h4 class="font-semibold mb-2">댓글</h4>
           <div v-for="comment in comments" :key="comment.comment_id" class="mb-2 text-sm text-gray-700 border-b pb-2">
             <div class="flex justify-between">
-              <span class="font-medium">{{ comment.user_id }}</span>
+              <span class="font-medium">{{ comment.username }}</span>
               <span class="text-xs text-gray-400">{{ comment.created_at }}</span>
             </div>
             <p>{{ comment.content }}</p>

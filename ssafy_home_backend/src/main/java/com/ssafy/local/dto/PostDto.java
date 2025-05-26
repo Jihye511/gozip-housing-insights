@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class PostDto {
 	int board_id;
 	String user_id;
+	String username;
 	String title;
 	String category;
 	String content;
