@@ -31,7 +31,7 @@ export default {
     <div class="max-w-7xl mx-auto flex items-center justify-between px-4">
       <!-- 로고 -->
       <router-link to="/" class="flex items-center space-x-2">
-        <img src="@/assets/gozip_logo.png" alt="로고" class="h-8 w-auto" />
+        <img src="@/assets/homelogo.png" alt="로고" class="h-8 w-auto" />
         <span class="text-xl font-bold text-green-600">부동산 정보 플랫폼</span>
       </router-link>
 

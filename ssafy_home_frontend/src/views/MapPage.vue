@@ -3,8 +3,8 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white border-r p-4 flex flex-col">
       <router-link to="/" class="flex items-center space-x-2 hover:opacity-80">
-        <img src="@/assets/gozip_logo.png" alt="로고" class="h-6 w-auto" />
-        <h2 class="text-xl font-bold text-green-600">검색</h2>
+        <img src="@/assets/homelogo.png" alt="로고" class="h-6 w-auto" />
+        <h2 class="text-xl font-bold text-green-600">부동산 정보 플랫폼</h2>
       </router-link>
 
       <!-- 지역 검색 -->
