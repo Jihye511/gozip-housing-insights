@@ -8,8 +8,22 @@
 		VALUES (#{user_id}, #{title}, #{category}, #{content}, NOW())
 	</insert>
 	<select id="getAllPosts" resultType="com.ssafy.local.dto.PostDto">
-	    SELECT * FROM board ORDER BY created_at DESC
-	  </select>
+	  SELECT 
+	    b.board_id,
+	    b.user_id,
+	    u.name AS username,  
+	    b.title,
+	    b.category,
+	    b.content,
+	    b.created_at,
+	    (
+	      SELECT COUNT(*) FROM comment c WHERE c.board_id = b.board_id
+	    ) AS comment_count
+	  FROM board b
+	  JOIN user u ON b.user_id = u.user_id
+	  ORDER BY b.created_at DESC
+	</select>
+		
 	<select id="getPost" parameterType="int" resultType="com.ssafy.local.dto.PostDto">
 	    SELECT * FROM board WHERE board_id = #{boardId}
 	</select>
@@ -28,8 +42,19 @@
 	    VALUES (#{board_id}, #{user_id}, #{content}, NOW())
 	</insert>
 	<select id="selectCommentsByBoardId" parameterType="int" resultType="com.ssafy.local.dto.CommentDto">
-	    SELECT * FROM comment WHERE board_id = #{boardId} ORDER BY created_at ASC
+	  SELECT 
+	    c.comment_id,
+	    c.board_id,
+	    c.user_id,
+	    u.name AS username, 
+	    c.content,
+	    c.created_at
+	  FROM comment c
+	  JOIN user u ON c.user_id = u.user_id
+	  WHERE c.board_id = #{boardId}
+	  ORDER BY c.created_at ASC
 	</select>
+	
 	<select id="countComments" parameterType="int" resultType="int">
     	SELECT COUNT(*) FROM comment WHERE board_id = #{boardId}
   	</select>
