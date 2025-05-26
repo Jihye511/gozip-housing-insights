@@ -10,7 +10,12 @@
         복잡한 부동산 시장을 쉽고 명확하게 이해할 수 있도록 도와드립니다.
       </p>
       <div class="space-x-4">
-        <button class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">서비스 시작하기</button>
+        <button
+          @click="$router.push('/map')"
+          class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+        >
+          서비스 시작하기
+        </button>
         <button class="border border-blue-500 text-blue-500 px-6 py-2 rounded hover:bg-blue-50">더 알아보기</button>
       </div>
     </main>
@@ -32,7 +37,7 @@
         <p class="text-gray-700 mt-4">
           인공지능이 분석한 부동산 시세와 지역 인프라 정보를 통해 투자와 거주를 위한 결정을 내릴 수 있습니다.
         </p>
-        <a href="#" class="text-blue-600 mt-4 inline-block hover:underline">지도 서비스 이용하기 →</a>
+        <a href="#" class="text-blue-600 mt-4 inline-block hover:underline" @click="$router.push('/map')">지도 서비스 이용하기 →</a>
       </div>
     </section>
 
@@ -45,7 +50,7 @@
         <p class="text-gray-700 mt-4">
           누구나 쉽게 부동산 금융을 계산할 수 있도록 설계된 스마트 계산기입니다.
         </p>
-        <a href="#" class="text-green-600 mt-4 inline-block hover:underline">계산기 서비스 이용하기 →</a>
+        <a href="#" class="text-green-600 mt-4 inline-block hover:underline" @click="$router.push('/calculator')">계산기 서비스 이용하기 →</a>
       </div>
       <div class="bg-white p-6 rounded-xl shadow w-full md:w-96">
         <h3 class="text-green-600 text-lg font-semibold mb-4">📊 스마트 부동산 계산기</h3>
@@ -55,6 +60,7 @@
           <li>✅ <strong>일반 계산기:</strong> 유지비용 및 세금까지 계산</li>
         </ul>
       </div>
+
     </section>
 
     <!-- Section 3: 커뮤니티 -->
@@ -74,7 +80,7 @@
         <p class="text-gray-700 mt-4">
           실제 경험을 바탕으로 한 다양한 관점의 정보와 인사이트를 공유하고 소통할 수 있는 커뮤니티입니다.
         </p>
-        <a href="#" class="text-blue-600 mt-4 inline-block hover:underline">커뮤니티 참여하기 →</a>
+        <a href="#" class="text-blue-600 mt-4 inline-block hover:underline" @click="$router.push('/community')">커뮤니티 참여하기 →</a>
       </div>
     </section>
   </div>
