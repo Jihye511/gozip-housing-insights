@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-white to-blue-50">
-
-    <main class="flex flex-col items-center justify-center py-20 text-center">
+  <div class="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
+    <!-- Section 0: 메인 소개 -->
+    <main class="snap-start min-h-screen flex flex-col items-center justify-center py-20 text-center bg-gradient-to-b from-white to-blue-50">
       <h2 class="text-4xl font-bold mb-4">
         <span class="text-blue-600">당신의 공간</span>, <span class="text-black">우리의</span> <span class="text-green-500">데이터</span><span class="text-black">로 완성됩니다.</span>
       </h2>
@@ -15,10 +15,8 @@
       </div>
     </main>
 
-
-
     <!-- Section 1: 지도 -->
-    <section class="flex flex-col md:flex-row items-center justify-center bg-white py-20 px-6 gap-10">
+    <section class="snap-start min-h-screen flex flex-col md:flex-row items-center justify-center bg-white py-20 px-6 gap-10">
       <div class="bg-blue-50 p-6 rounded-xl shadow w-full md:w-96">
         <h3 class="text-blue-600 text-lg font-semibold mb-4">🗺 데이터 기반 부동산 지도</h3>
         <ul class="text-sm space-y-3 text-gray-800">
@@ -39,7 +37,7 @@
     </section>
 
     <!-- Section 2: 계산기 -->
-    <section class="flex flex-col-reverse md:flex-row items-center justify-center bg-green-50 py-20 px-6 gap-10">
+    <section class="snap-start min-h-screen flex flex-col-reverse md:flex-row items-center justify-center bg-green-50 py-20 px-6 gap-10">
       <div class="text-left max-w-xl">
         <h2 class="text-3xl font-bold text-gray-800">
           복잡한 <span class="text-green-500">부동산 계산</span><br />을 쉽고 정확하게
@@ -60,7 +58,7 @@
     </section>
 
     <!-- Section 3: 커뮤니티 -->
-    <section class="flex flex-col md:flex-row items-center justify-center bg-blue-50 py-20 px-6 gap-10">
+    <section class="snap-start min-h-screen flex flex-col md:flex-row items-center justify-center bg-blue-50 py-20 px-6 gap-10">
       <div class="bg-white p-6 rounded-xl shadow w-full md:w-96">
         <h3 class="text-blue-600 text-lg font-semibold mb-4">👥 부동산 커뮤니티</h3>
         <ul class="text-sm space-y-3 text-gray-800">
@@ -89,4 +87,5 @@ export default {
 </script>
 
 <style scoped>
+/* Tailwind 기반이므로 별도 스타일은 필요 없음 */
 </style>
