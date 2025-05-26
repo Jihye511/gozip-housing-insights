@@ -23,6 +23,16 @@
                   <td>{{ req.certification_id }}</td>
                   <td>{{ req.user_id }}</td>
                   <td>{{ req.apt_seq }}</td>
+                  <td class="px-4 py-2">
+                    <!-- id 기반 다운로드 엔드포인트로 변경 -->
+                    <a
+                      :href="`/api/admin/certifications/${req.certification_id}/file`"
+                      target="_blank"
+                      class="text-blue-600 hover:underline"
+                    >
+                      다운로드
+                    </a>
+                  </td>
                   <td>{{ req.approval }}</td>
                   <td class="px-4 py-2 space-x-2">
                     <button

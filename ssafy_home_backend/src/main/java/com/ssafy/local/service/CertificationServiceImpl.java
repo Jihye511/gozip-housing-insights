@@ -35,4 +35,9 @@ public class CertificationServiceImpl implements CertificationService {
 	public CertificationDto getByUserAndApt(String userId, String aptSeq) {
 		return repository.selectByUserAndApt(userId, aptSeq);
 	}
+	
+	@Override
+    public CertificationDto getById(String certificationId) {
+        return repository.selectById(certificationId);
+    }
 }

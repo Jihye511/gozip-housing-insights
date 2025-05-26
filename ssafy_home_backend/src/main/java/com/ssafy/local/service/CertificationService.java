@@ -22,5 +22,7 @@ public interface CertificationService {
 
 	// 인증 사용자 조회
 	CertificationDto getByUserAndApt(String userId, String aptSeq);
-
+	
+	/** 인증 요청 단건 조회 (관리자용) */
+    CertificationDto getById(String certificationId);
 }

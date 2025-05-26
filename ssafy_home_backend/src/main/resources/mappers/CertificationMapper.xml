@@ -42,6 +42,14 @@
 		INSERT INTO certification
 		(user_id, pdf_file, apt_seq, approval)
 		VALUES
-		(#{user_id}, #{pdf_file}, #{apt_seq}, #{approval})
+		(#{user_id}, #{pdf_file},
+		#{apt_seq}, #{approval})
 	</insert>
+
+	<select id="selectById"
+		resultType="com.ssafy.local.dto.CertificationDto">
+		SELECT certification_id, user_id, pdf_file, apt_seq, approval
+		FROM certification
+		WHERE certification_id = #{certification_id}
+	</select>
 </mapper>
