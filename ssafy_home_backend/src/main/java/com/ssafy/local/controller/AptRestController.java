@@ -121,6 +121,7 @@ public class AptRestController {
 
         
         
+        
         if (aptNames == null || aptNames.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "아파트 이름 목록이 비어있습니다."));
         }
