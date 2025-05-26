@@ -3,7 +3,7 @@ module.exports = {
   theme: {
     extend: {},
     fontFamily: {
-      bmjua: ['BMJUA'],
+      bm: ['"BMHannaPro"', 'sans-serif'],
     },
   },
   plugins: [require('daisyui')],

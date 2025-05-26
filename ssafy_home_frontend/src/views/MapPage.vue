@@ -298,30 +298,56 @@
 
 
     <!-- 지도 -->
-    <div class="flex-1 bg-gray-50 relative">
-      <div id="map" class="absolute inset-0 z-0"></div>
+<div class="flex-1 bg-gray-50 relative">
+  <div id="map" class="absolute inset-0 z-0"></div>
 
-      <div class="absolute top-4 right-4 z-50 space-x-2">
-        <label class="block text-sm font-medium mb-1">비교 연도 선택</label>
-        <div class="flex space-x-2">
-          <select v-model="fromYear" class="border p-2 rounded">
-            <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
-          </select>
-          <span class="self-center">→</span>
-          <select v-model="toYear" class="border p-2 rounded">
-            <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}년</option>
-          </select>
-        </div>
-        <button @click="selectOverlay('RECTANGLE')" class="px-2 py-1 bg-white rounded">
-          사각형
-        </button>
-        <!-- 새로 추가하는 완료 버튼 -->
-        <button @click="onCompleteDrawing" class="px-2 py-1 bg-green-600 text-white rounded">
-          완료
-        </button>
-      </div>
+  <div
+    class="absolute top-6 right-6 z-50
+           bg-white bg-opacity-90 backdrop-blur-md
+           rounded-xl p-4 shadow-lg w-64"
+  >
+    <h4 class="text-sm font-semibold text-gray-700 mb-3">비교 연도 선택</h4>
+
+    <div class="flex items-center space-x-2 mb-4">
+      <select
+        v-model="fromYear"
+        class="flex-1 border-gray-200 rounded-lg p-2 shadow-sm focus:ring-2 focus:ring-green-500"
+      >
+        <option v-for="y in yearOptions" :key="y" :value="y">
+          {{ y }}년
+        </option>
+      </select>
+      <span class="text-gray-500 font-semibold">→</span>
+      <select
+        v-model="toYear"
+        class="flex-1 border-gray-200 rounded-lg p-2 shadow-sm focus:ring-2 focus:ring-green-500"
+      >
+        <option v-for="y in yearOptions" :key="y" :value="y">
+          {{ y }}년
+        </option>
+      </select>
     </div>
 
+    <div class="flex space-x-2">
+      <button
+        @click="selectOverlay('RECTANGLE')"
+        class="flex-1 border-2 border-green-500 text-green-500
+               rounded-lg py-2 font-medium
+               hover:bg-green-50 transition"
+      >
+        범위 탐색
+      </button>
+      <button
+        @click="onCompleteDrawing"
+        class="flex-1 bg-green-600 text-white
+               rounded-lg py-2 font-medium
+               hover:bg-green-700 transition"
+      >
+        완료
+      </button>
+    </div>
+  </div>
+</div>
     <!--  오른쪽 하단 고정 버튼 -->
 <div>
   <button
@@ -837,6 +863,7 @@ export default {
       }
     },
     selectOverlay(type) {
+      this.clearMarkers()
       this.clearRankingMarkers()
       // 사각형 모드 진입
       this.drawingManager.cancel()

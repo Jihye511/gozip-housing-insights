@@ -16,7 +16,7 @@
     </main>
 
 
-    
+
     <!-- Section 1: 지도 -->
     <section class="flex flex-col md:flex-row items-center justify-center bg-white py-20 px-6 gap-10">
       <div class="bg-blue-50 p-6 rounded-xl shadow w-full md:w-96">
