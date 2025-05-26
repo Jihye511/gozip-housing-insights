@@ -190,7 +190,7 @@ export default {
       responseData: null,
       currentRequestId: 0,
 
-      isloading: false,
+      isLoading: false,
     }
   },
   mounted() {
@@ -261,7 +261,8 @@ export default {
       try {
         const response = await axios.post('http://localhost:8080/api/recommend', payload)
 
-        // 응답이 내 요청 시점의 ID와 같을 때만 반영
+        await new Promise((resolve) => setTimeout(resolve, 1500)) // ✅ 여기 넣기
+
         if (this.currentRequestId === requestId) {
           this.responseData = response.data
 
@@ -269,13 +270,11 @@ export default {
             const el = this.$refs.resultSection
             if (el) el.scrollIntoView({ behavior: 'smooth' })
           })
-        } else {
-          console.warn('이전 요청 응답 도착 - 무시함')
         }
       } catch (error) {
         console.error('AI 추천 요청 실패:', error)
       } finally {
-        this.isLoading = false // 로딩 종료
+        this.isLoading = false
       }
     },
     resetForm() {
