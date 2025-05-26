@@ -17,4 +17,5 @@ public class CommentDto {
 	String category;
 	String content;
 //	String date;
+	String username;
 }

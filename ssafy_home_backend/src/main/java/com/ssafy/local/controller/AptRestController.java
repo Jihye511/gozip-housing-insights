@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ssafy.local.dto.AvgPriceDto;
 import com.ssafy.local.dto.HouseDealDto;
 import com.ssafy.local.dto.HouseInfoDto;
+import com.ssafy.local.dto.RankingDto;
 import com.ssafy.local.dto.SimpleAptInfoDto;
 import com.ssafy.local.service.HouseDealService;
 import com.ssafy.local.service.HouseInfoService;
+import com.ssafy.local.service.RankingService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -119,6 +121,7 @@ public class AptRestController {
 
         
         
+        
         if (aptNames == null || aptNames.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "아파트 이름 목록이 비어있습니다."));
         }
@@ -154,5 +157,27 @@ public class AptRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error searching apartments."));
         }
+    }
+    
+    private final RankingService rankingService;
+
+    /**
+     * GET /api/apt/ranking
+     * @param swLat 남서(서남) 위도
+     * @param swLng 남서(서남) 경도
+     * @param neLat 북동(북동) 위도
+     * @param neLng 북동(북동) 경도
+     */
+    @GetMapping("/ranking")
+    public ResponseEntity<List<RankingDto>> getRectangleRanking(
+            @RequestParam double swLat,
+            @RequestParam double swLng,
+            @RequestParam double neLat,
+            @RequestParam double neLng,
+            @RequestParam int fromYear,
+            @RequestParam int toYear) {
+        List<RankingDto> ranking = rankingService.computeRectangleRanking(
+            swLat, swLng, neLat, neLng, fromYear, toYear);
+        return ResponseEntity.ok(ranking);
     }
 }

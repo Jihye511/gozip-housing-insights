@@ -47,10 +47,7 @@ public class ReviewController {
     @GetMapping("/{apartmentId}")
     public ResponseEntity<List<ReviewDto>> getReviewsByApartmentId(@PathVariable String apartmentId) {
         List<ReviewDto> reviews = reviewService.getReviewsByApartmentId(apartmentId);
-        if (reviews != null && !reviews.isEmpty()) {
-            return ResponseEntity.ok(reviews);
-        }
-        return ResponseEntity.status(404).body(null); // 리뷰가 없는 경우 404
+        return ResponseEntity.ok(reviews); // 항상 200 OK + 빈 배열도 허용 ✅
     }
 
     // 리뷰 삭제 API
