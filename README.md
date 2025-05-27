@@ -6,3 +6,7 @@ https://docs.google.com/spreadsheets/d/1zrRtcDrmhplDt20apE999OgHi7lIRaEqgyQfeq4j
 
 ### ERD
 ![image.png](./image.png)
+
+
+### classdiagram
+![classdiagram.png](./classdiagram.png)
