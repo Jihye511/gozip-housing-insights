@@ -15,4 +15,9 @@
                  BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
                  Arial, 'Noto Sans', sans-serif;
   }
+  input[type="password"] {
+    font-family: ui-sans-serif, system-ui !important;
+    /* WebKit 브라우저의 경우 마스크 글립을 확실히 disc 로 설정 */
+    -webkit-text-security: disc;
+  }
 }
