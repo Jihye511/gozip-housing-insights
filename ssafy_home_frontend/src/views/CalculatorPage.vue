@@ -14,25 +14,81 @@
           <div v-if="currentTab === 'commission'">
             <h3 class="text-lg font-bold mb-4">중개보수 계산기</h3>
 
-            <label class="text-sm font-medium block mb-1">거래 유형 선택</label>
-            <select v-model="dealType" class="border p-2 rounded w-full mb-4">
-              <option value="매매">매매</option>
-              <option value="전세">전세</option>
-              <option value="월세">월세</option>
-            </select>
+            <!-- 거래 유형, 거래 대상, 거래 지역 -->
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div>
+                <p class="text-sm font-medium mb-2">거래 유형</p>
+                <div class="space-x-2">
+                  <button @click="dealType='매매'" :class="dealType==='매매'?activeBtn:inactiveBtn">매매</button>
+                  <button @click="dealType='전세'" :class="dealType==='전세'?activeBtn:inactiveBtn">전세</button>
+                  <button @click="dealType='월세'" :class="dealType==='월세'?activeBtn:inactiveBtn">월세</button>
+                </div>
+              </div>
 
-            <label class="text-sm font-medium block mb-1">거래 금액 입력 (₩)</label>
-            <input v-model.number="price" type="number" placeholder="예: 300000000" class="border p-2 rounded w-full mb-4" />
+              <div>
+                <p class="text-sm font-medium mb-2">거래 대상</p>
+                <div class="space-x-2">
+                  <button @click="propertyType='주택'" :class="propertyType==='주택'?activeBtn:inactiveBtn">주택</button>
+                  <button @click="propertyType='오피스텔'" :class="propertyType==='오피스텔'?activeBtn:inactiveBtn">오피스텔</button>
+                  <button @click="propertyType='기타'" :class="propertyType==='기타'?activeBtn:inactiveBtn">기타</button>
+                </div>
+              </div>
 
-            <button @click="calcCommission" class="w-full bg-black text-white py-2 rounded">계산하기</button>
-            <p class="mt-4 text-blue-600 font-bold text-center">{{ commission.toLocaleString() }}원</p>
-            <p class="text-sm text-center mt-2 text-gray-700" v-if="price > 0">
-              계산식: {{ price.toLocaleString() }} × {{ (commissionRate * 100).toFixed(2) }}% = {{ (price * commissionRate).toLocaleString() }} (최대 {{ commissionLimit.toLocaleString() }}원 적용)
-            </p>
-            <p class="text-xs text-gray-500 text-center mt-2">* 법정 중개보수 상한 기준으로 계산됩니다.</p>
+              <div>
+                <label class="text-sm font-medium mb-1 block">거래 지역</label>
+                <select v-model="region" class="w-full border p-2 rounded">
+                  <option value="">선택</option>
+                  <option v-for="r in regions" :key="r" :value="r">{{ r }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 보증금 입력 -->
+            <div class="mb-4">
+              <label class="text-sm font-medium block mb-1">보증금 (₩)</label>
+              <div class="flex items-center space-x-2">
+                <input v-model.number="deposit" type="number" class="border p-2 rounded w-full" placeholder="예: 2000000" />
+                <span>원</span>
+              </div>
+              <div class="mt-2 space-x-1 text-xs">
+                <button @click="addDeposit(100000000)" class="px-2 py-1 border rounded">+억</button>
+                <button @click="addDeposit(10000000)" class="px-2 py-1 border rounded">+천만</button>
+                <button @click="addDeposit(1000000)" class="px-2 py-1 border rounded">+백만</button>
+                <button @click="addDeposit(100000)" class="px-2 py-1 border rounded">+십만</button>
+                <button @click="addDeposit(10000)" class="px-2 py-1 border rounded">+만</button>
+                <button @click="deposit=0" class="px-2 py-1 border rounded text-red-600">C</button>
+              </div>
+            </div>
+
+            <!-- 월세 입력 (월세 거래 시) -->
+            <div v-if="dealType==='월세'" class="mb-4">
+              <label class="text-sm font-medium block mb-1">월세 (₩)</label>
+              <div class="flex items-center space-x-2">
+                <input v-model.number="rent" type="number" class="border p-2 rounded w-full" placeholder="예: 300000" />
+                <span>원</span>
+              </div>
+              <div class="mt-2 space-x-1 text-xs">
+                <button @click="addRent(1000000)" class="px-2 py-1 border rounded">+백만</button>
+                <button @click="addRent(100000)" class="px-2 py-1 border rounded">+십만</button>
+                <button @click="addRent(10000)" class="px-2 py-1 border rounded">+만</button>
+                <button @click="rent=0" class="px-2 py-1 border rounded text-red-600">C</button>
+              </div>
+            </div>
+
+            <!-- 계산 버튼 -->
+            <button @click="calculateCommission" class="w-full bg-green-600 text-white py-2 rounded">수수료 계산하기</button>
+
+            <!-- 결과 표시 -->
+            <div v-if="resultCalculated" class="mt-6 bg-gray-50 p-4 rounded">
+              <p class="text-sm">거래금액: {{ formattedTransactionAmount }}원</p>
+              <p class="text-sm">상한요율: {{ (commissionRate * 100).toFixed(2) }}%</p>
+              <p class="text-sm">중개 수수료: {{ formattedCommission }}원</p>
+              <p class="text-sm">부가세 (10%): {{ formattedTax }}원</p>
+              <p class="font-semibold mt-2">총 수수료: {{ formattedTotal }}원</p>
+            </div>
           </div>
 
-          <!-- 대출이자 계산기 -->
+<!-- 대출이자 계산기 -->
           <div v-if="currentTab === 'loan'">
             <h3 class="text-lg font-bold mb-4">대출이자 계산기</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -62,7 +118,7 @@
               </div>
             </div>
 
-            <button @click="calcLoan" class="w-full bg-black text-white py-2 rounded mt-4">계산하기</button>
+            <button @click="calcLoan" class="w-full bg-green-600 text-white py-2 rounded">계산하기</button>
             <p class="mt-4 text-blue-600 font-bold text-center">월 상환금액: {{ monthlyPayment.toLocaleString() }}원</p>
 
             <p class="text-sm text-center mt-2 text-gray-700" v-if="loanAmount && loanRate && loanTerm">
@@ -118,46 +174,102 @@ export default {
       currentTab: 'commission',
       // 중개보수
       dealType: '매매',
-      price: 0,
-      commission: 0,
+      propertyType: '주택',
+      region: '',
+      regions: ['서울', '부산', '대전', '대구', '인천', '광주', '울산', '세종', '경기도', '강원'],
+      deposit: 0,
+      rent: 0,
       commissionRate: 0,
-      commissionLimit: 1000000,
+      commissionLimit: 0,
+      commission: 0,
+      tax: 0,
+      total: 0,
+      resultCalculated: false,
+      activeBtn: 'px-3 py-1 bg-green-600 text-white rounded',
+      inactiveBtn: 'px-3 py-1 border rounded text-gray-600 hover:bg-gray-100',
       // 대출
       loanAmount: 0,
       loanRate: 0,
       loanTerm: 0,
       repaymentType: 'equal',
       monthlyPayment: 0,
-      // 계산기
-      calcInput: '',
+      // 일반 계산기
+      calcInput: ''
     };
+  },
+  computed: {
+    formattedTransactionAmount() {
+      const amt = this.dealType === '월세'
+        ? this.deposit + this.rent * 70
+        : this.deposit;
+      return amt.toLocaleString();
+    },
+    formattedCommission() {
+      return this.commission.toLocaleString();
+    },
+    formattedTax() {
+      return this.tax.toLocaleString();
+    },
+    formattedTotal() {
+      return this.total.toLocaleString();
+    }
   },
   methods: {
     tabClass(tab) {
       return `px-4 py-1 rounded ${this.currentTab === tab ? 'bg-gray-200 font-semibold' : 'text-gray-600 hover:underline'}`;
     },
-    calcCommission() {
-      let rate = 0.009;
-      const amount = this.price;
-
-      if (this.dealType === '매매') {
-        if (amount <= 50000000) rate = 0.006;
-        else if (amount <= 200000000) rate = 0.005;
-        else if (amount <= 900000000) rate = 0.004;
-        else rate = 0.009;
-      } else if (this.dealType === '전세') {
-        rate = 0.008;
-      } else if (this.dealType === '월세') {
-        rate = 0.008;
-      }
-
-      this.commissionRate = rate;
-      this.commission = Math.min(amount * rate, this.commissionLimit);
+    // 중개보수 계산
+    addDeposit(amount) {
+      this.deposit += amount;
     },
+    addRent(amount) {
+      this.rent += amount;
+    },
+    calculateCommission() {
+      const amt = this.dealType === '월세'
+        ? this.deposit + this.rent * 70
+        : this.deposit;
+      let table;
+      if (this.dealType === '매매') {
+        table = [
+          { max: 50000000, rate: 0.006, limit: 250000 },
+          { max: 200000000, rate: 0.005, limit: 800000 },
+          { max: 900000000, rate: 0.004, limit: Infinity },
+          { max: 1200000000, rate: 0.005, limit: Infinity },
+          { max: 1500000000, rate: 0.006, limit: Infinity },
+          { max: Infinity, rate: 0.007, limit: Infinity }
+        ];
+      } else if (this.dealType === '전세') {
+        table = [
+          { max: 50000000, rate: 0.005, limit: 200000 },
+          { max: 100000000, rate: 0.004, limit: 300000 },
+          { max: 600000000, rate: 0.003, limit: Infinity },
+          { max: 1200000000, rate: 0.004, limit: Infinity },
+          { max: 1500000000, rate: 0.005, limit: Infinity },
+          { max: Infinity, rate: 0.006, limit: Infinity }
+        ];
+      } else {
+        table = [
+          { max: 50000000, rate: 0.005, limit: 200000 },
+          { max: 100000000, rate: 0.004, limit: 300000 },
+          { max: 600000000, rate: 0.003, limit: Infinity },
+          { max: 1200000000, rate: 0.004, limit: Infinity },
+          { max: 1500000000, rate: 0.005, limit: Infinity },
+          { max: Infinity, rate: 0.006, limit: Infinity }
+        ];
+      }
+      const tier = table.find(t => amt <= t.max);
+      this.commissionRate = tier.rate;
+      this.commissionLimit = tier.limit;
+      this.commission = Math.min(Math.round(amt * tier.rate), tier.limit);
+      this.tax = Math.round(this.commission * 0.1);
+      this.total = this.commission + this.tax;
+      this.resultCalculated = true;
+    },
+    // 대출이자 계산 (기존)
     calcLoan() {
       const r = this.loanRate / 100 / 12;
       const n = this.loanTerm * 12;
-
       if (this.repaymentType === 'equal') {
         if (r > 0) {
           this.monthlyPayment = Math.round(
@@ -174,17 +286,14 @@ export default {
         this.monthlyPayment = Math.round(this.loanAmount * r);
       }
     },
+    // 일반 계산기
     append(char) {
       this.calcInput += char;
     },
     calculate() {
       try {
         const result = eval(this.calcInput);
-        if (isNaN(result) || !isFinite(result)) {
-          this.calcInput = '오류';
-        } else {
-          this.calcInput = result.toString();
-        }
+        this.calcInput = (!isNaN(result) && isFinite(result)) ? result.toString() : '오류';
       } catch {
         this.calcInput = '오류';
       }
