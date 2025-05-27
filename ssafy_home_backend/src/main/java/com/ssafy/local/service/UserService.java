@@ -11,8 +11,6 @@ public interface UserService {
 	int insertUser(UserDto dto) throws Exception;
 	UserDto selectUserByID(String id) throws Exception;
 	int deleteUser(String id) throws Exception;
-	int updateUser(UserDto dto) throws Exception;
-	UserDto login(String userId, String pw);
 	boolean isUserIdExists(String userId) throws Exception;
 	boolean isEmailExists(String email) throws Exception;
 	UserDto selectUserByEmail(String email) throws Exception;

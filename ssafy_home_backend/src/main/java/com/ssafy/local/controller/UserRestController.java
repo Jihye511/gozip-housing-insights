@@ -55,59 +55,7 @@ public class UserRestController {
         }
     }
 
-    // ✅ [UPDATE] User Info
-    //수정 필요
-    @PutMapping("/update")
-    public ResponseEntity<?> update(@AuthenticationPrincipal CustomOAuth2User customUser,
-                                    @RequestBody UserDto updateRequest) {
-        if (customUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication required.");
-        }
 
-        String userId = customUser.getUsername();
-        if (!userId.equals(updateRequest.getUser_id())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Cannot update another user's profile.");
-        }
-
-        Map<String, String> response = new HashMap<>();
-        try {
-            if (updateRequest.getEmail() != null &&
-                !updateRequest.getEmail().equals(customUser.getAttribute(userId)) &&
-                userService.isEmailExists(updateRequest.getEmail())) {
-                response.put("error", "Email already in use.");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
-
-            UserDto userToUpdate = userService.selectUserByID(userId);
-            if (userToUpdate == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-            }
-
-            if (updateRequest.getName() != null) userToUpdate.setName(updateRequest.getName());
-            if (updateRequest.getPhone() != null) userToUpdate.setPhone(updateRequest.getPhone());
-            if (updateRequest.getEmail() != null) userToUpdate.setEmail(updateRequest.getEmail());
-
-            if (updateRequest.getPw() != null && !updateRequest.getPw().trim().isEmpty()) {
-                userToUpdate.setPw(updateRequest.getPw()); // 암호화 필요
-            } else {
-                userToUpdate.setPw(null); // null 처리로 update문에서 제외
-            }
-
-            int result = userService.updateUser(userToUpdate);
-            if (result > 0) {
-                response.put("message", "User information updated successfully.");
-                return ResponseEntity.ok(response);
-            } else {
-                response.put("error", "Failed to update user information.");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-            }
-
-        } catch (Exception e) {
-            log.error("Error updating user ID: {}", userId, e);
-            response.put("error", "An error occurred during update.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
 
     // ✅ [DELETE] User
     @DeleteMapping("/delete")
@@ -227,6 +175,58 @@ public class UserRestController {
     }
 
 
-    
+    // ✅ [UPDATE] User Info
+    //수정 필요
+//    @PutMapping("/update")
+//    public ResponseEntity<?> update(@AuthenticationPrincipal CustomOAuth2User customUser,
+//                                    @RequestBody UserDto updateRequest) {
+//        if (customUser == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication required.");
+//        }
+//
+//        String userId = customUser.getUsername();
+//        if (!userId.equals(updateRequest.getUser_id())) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Cannot update another user's profile.");
+//        }
+//
+//        Map<String, String> response = new HashMap<>();
+//        try {
+//            if (updateRequest.getEmail() != null &&
+//                !updateRequest.getEmail().equals(customUser.getAttribute(userId)) &&
+//                userService.isEmailExists(updateRequest.getEmail())) {
+//                response.put("error", "Email already in use.");
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+//            }
+//
+//            UserDto userToUpdate = userService.selectUserByID(userId);
+//            if (userToUpdate == null) {
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+//            }
+//
+//            if (updateRequest.getName() != null) userToUpdate.setName(updateRequest.getName());
+//            if (updateRequest.getPhone() != null) userToUpdate.setPhone(updateRequest.getPhone());
+//            if (updateRequest.getEmail() != null) userToUpdate.setEmail(updateRequest.getEmail());
+//
+//            if (updateRequest.getPw() != null && !updateRequest.getPw().trim().isEmpty()) {
+//                userToUpdate.setPw(updateRequest.getPw()); // 암호화 필요
+//            } else {
+//                userToUpdate.setPw(null); // null 처리로 update문에서 제외
+//            }
+//
+//            int result = userService.updateUser(userToUpdate);
+//            if (result > 0) {
+//                response.put("message", "User information updated successfully.");
+//                return ResponseEntity.ok(response);
+//            } else {
+//                response.put("error", "Failed to update user information.");
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+//            }
+//
+//        } catch (Exception e) {
+//            log.error("Error updating user ID: {}", userId, e);
+//            response.put("error", "An error occurred during update.");
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+//        }
+//    }
     
 }
