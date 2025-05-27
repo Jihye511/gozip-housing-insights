@@ -3,8 +3,12 @@ package com.ssafy.local.controller;
 import com.ssafy.local.dto.CertificationDto;
 import com.ssafy.local.service.CertificationService;
 import com.ssafy.local.service.FileStorageService;
+
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -91,5 +95,35 @@ public class CertificationController {
 	public ResponseEntity<Void> reject(@PathVariable String id) {
 		certificationService.rejectRequest(id);
 		return ResponseEntity.ok().build();
+	}
+
+	/**
+	 * 관리자: 인증 파일 다운로드 - 요청 ID로 DB에서 pdf_file(저장된 파일명 or 경로)을 꺼내 FileStorageService
+	 * 를 통해 Resource 로 로드한 뒤 attachment 헤더를 걸어 반환.
+	 */
+	@GetMapping("/api/admin/certifications/{id}/file")
+	public ResponseEntity<Resource> downloadCertificationFile(@PathVariable String id, HttpServletRequest request)
+			throws IOException {
+
+		// 1) DB에서 dto 조회
+		CertificationDto dto = certificationService.getById(id);
+		if (dto == null) {
+			return ResponseEntity.notFound().build();
+		}
+
+		// 2) 파일명 (또는 경로) 꺼내서 Resource 로 로드
+		String filename = dto.getPdf_file();
+		Resource resource = fileStorageService.loadFileAsResource(filename);
+
+		// 3) MIME 타입 감지
+		String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+		if (contentType == null) {
+			contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+		}
+
+		// 4) attachment 헤더 걸고 반환
+		return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+				.body(resource);
 	}
 }

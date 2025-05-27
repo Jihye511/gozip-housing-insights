@@ -21,4 +21,6 @@ public interface CertificationRepository {
     
     
     int insertRequest(CertificationDto dto);
+    
+    CertificationDto selectById(@Param("certification_id") String certificationId);
 }
