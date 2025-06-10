@@ -442,3 +442,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/java,eclipse,visualstudiocode,node,vue,vuejs,intellij,windows,macos
+ssafy_home_backend/src/main/resources/application.properties
