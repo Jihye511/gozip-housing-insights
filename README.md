@@ -52,8 +52,11 @@ Spring Boot와 Vue.js 기반의 부동산 지도 서비스 프로젝트입니다
 
 
 ### 💬 커뮤니티 기능
+- 4가지의 카테고리 게시판
+- 실시간 검색 기능
 - 게시글/댓글 작성 및 조회
 - 사용자 간 정보 공유 가능
+<img width="1470" alt="image" src="https://github.com/user-attachments/assets/dbcb4eac-6dc5-4ce1-8c5b-d1b53f21a88b" />
 
 ---
 
@@ -62,6 +65,7 @@ Spring Boot와 Vue.js 기반의 부동산 지도 서비스 프로젝트입니다
 ### 🔧 Backend
 - **Framework**: Spring Boot
 - **Database**: MySQL
+- **Data Access**: MyBatis
 - **AI 연동**: Spring AI, OpenAI GPT
 - **보안**: Spring Security
 
