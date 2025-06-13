@@ -9,6 +9,9 @@ Spring Boot와 Vue.js 기반의 부동산 지도 서비스 프로젝트입니다
 - **프로젝트명**: GoZip (고집)
 - **기간**: 2025.05.14 ~ 2025.05.28
 - **주요기능**: 지역 기반 아파트 정보 제공, 지도 내 범위 검색, AI 추천 등
+- **개발 환경** :
+    - **Backend**: Spring Boot, MyBatis, MySQL
+    - **Frontend**: Vue.js
 - **결과 영상**: [클릭!](https://www.youtube.com/watch?v=8zShrQAl_cU)
 ### 🙋‍♂️ Team members
 
